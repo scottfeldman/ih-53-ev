@@ -34,3 +34,4 @@ go.work.sum
 *.bak
 .DS_Store
 schematic/IH53EV-backups/
+*.lck

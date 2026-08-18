@@ -416,7 +416,7 @@
         "uuid": "20bcdb30-6107-4dbd-a268-7abc52ed82ed"
       }
     ],
-    "used_designators": "BT2-6,Circuit_Breaker1-2,SW1,SW4,Power_Relay1,F3-8,R1,K1-3,2Pole_1000V_DC_10Amp1,C1,#PWR2,#PWR4-6,J1",
+    "used_designators": "",
     "variants": []
   },
   "sheets": [
