@@ -9,7 +9,7 @@
 		(in_pos_files yes)
 		(duplicate_pin_numbers_are_jumpers no)
 		(property "Reference" "Orion BMS 2 I/O"
-			(at 16.002 8.128 0)
+			(at 16.002 10.668 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -63,7 +63,7 @@
 		)
 		(symbol "IO_Connector_0_1"
 			(rectangle
-				(start -6.35 6.35)
+				(start -6.35 8.89)
 				(end 38.1 -26.67)
 				(stroke
 					(width 0)
@@ -114,7 +114,7 @@
 				)
 			)
 			(pin input line
-				(at -8.89 -21.59 0)
+				(at 40.64 -21.59 180)
 				(length 2.54)
 				(name "CHARGE_Power"
 					(effects
@@ -132,7 +132,7 @@
 				)
 			)
 			(pin input line
-				(at -8.89 -24.13 0)
+				(at 40.64 -24.13 180)
 				(length 2.54)
 				(name "Charger_Safety_(on/off)"
 					(effects
@@ -150,7 +150,7 @@
 				)
 			)
 			(pin input line
-				(at -8.89 -6.35 0)
+				(at -8.89 -1.27 0)
 				(length 2.54)
 				(name "DISCHARGE_enable"
 					(effects
@@ -168,7 +168,7 @@
 				)
 			)
 			(pin input line
-				(at 40.64 3.81 180)
+				(at -8.89 -7.62 0)
 				(length 2.54)
 				(name "Fan_Monitor_MPI3"
 					(effects
@@ -186,7 +186,7 @@
 				)
 			)
 			(pin input line
-				(at 40.64 1.27 180)
+				(at -8.89 -10.16 0)
 				(length 2.54)
 				(name "Fan_Enable_MPO3"
 					(effects
@@ -204,7 +204,7 @@
 				)
 			)
 			(pin input line
-				(at 21.59 -29.21 90)
+				(at -8.89 6.35 0)
 				(length 2.54)
 				(name "Ground"
 					(effects
@@ -222,7 +222,7 @@
 				)
 			)
 			(pin input line
-				(at -8.89 -12.7 0)
+				(at 40.64 -13.97 180)
 				(length 2.54)
 				(name "J1772_Control_Pilot"
 					(effects
@@ -240,7 +240,7 @@
 				)
 			)
 			(pin input line
-				(at -8.89 -15.24 0)
+				(at 40.64 -11.43 180)
 				(length 2.54)
 				(name "J1772_Proximity_Detect"
 					(effects
@@ -258,7 +258,7 @@
 				)
 			)
 			(pin input line
-				(at 40.64 -12.7 180)
+				(at 40.64 1.27 180)
 				(length 2.54)
 				(name "CAN1_Sheild"
 					(effects
@@ -276,7 +276,7 @@
 				)
 			)
 			(pin input line
-				(at 40.64 -17.78 180)
+				(at 40.64 3.81 180)
 				(length 2.54)
 				(name "CAN1_H"
 					(effects
@@ -294,7 +294,7 @@
 				)
 			)
 			(pin input line
-				(at 40.64 -15.24 180)
+				(at 40.64 6.35 180)
 				(length 2.54)
 				(name "CAN1_L"
 					(effects
@@ -304,60 +304,6 @@
 					)
 				)
 				(number "19"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 40.64 -5.08 180)
-				(length 2.54)
-				(name "CAN2_L"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "20"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 40.64 -7.62 180)
-				(length 2.54)
-				(name "CAN2_H"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "21"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 40.64 -10.16 180)
-				(length 2.54)
-				(name "CAN2_Sheild"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "22"
 					(effects
 						(font
 							(size 1.27 1.27)
