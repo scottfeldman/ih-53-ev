@@ -6,6 +6,7 @@
 	(paper "A2")
 	(title_block
 		(title "1953 International EV Conversion")
+		(date "2026-08-24")
 	)
 	(lib_symbols
 		(symbol "Anderson_SB50_1"
