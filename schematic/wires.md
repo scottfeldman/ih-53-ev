@@ -79,7 +79,7 @@ Inline disconnects (Anderson, DJ70xx, Weather Pack, Deutsch, USB) are drawn as t
 | Delphi Weather Pack 4 | Weather Pack 4-way | 18 AWG (Orion colors carried through) | schematic |
 | Deutsch DTM 3 | DTM 3-way | 16–22 AWG | schematic |
 | BB CANOP isolator | terminal-block CAN / power | no factory pigtail color | Advantech BB-CANOP |
-| HV terminal blocks | 5/16″ and 1/4″ studs | 2/0 lugs on 5/16″; smaller HV on 1/4″ | schematic |
+| HV terminal blocks (TB1/TB3 +, TB2 −) | 5/16″ and **#10-32** studs | 2/0 lugs on 5/16″; 10/18 AWG HV on #10-32 | schematic (was 1/4″; symbol now #10) |
 | Gigavac GV200QA-1 | M8 HV terminals; coil X1/X2 | 2/0 lugs; coil from K1 harness | schematic |
 | T92P11D22-12 | 0.250″ QC | 14 AWG AC; 18 AWG coil from Orion | TE T92 |
 | T9AP1D52-12 | 0.250″ QC | 18 AWG where tied to Orion | TE T9A |
@@ -113,6 +113,20 @@ Tesla modules **BT2–BT6** in series. Inter-module runs are unlabeled next to t
 
 SB350 left housing mates to right housing: pack + bus ↔ TB1, inverter B+ ↔ TB2−.
 
+### Bus bars TB1 / TB2 / TB3
+
+Schematic symbols `Terminal_Block+` (TB1, TB3) and `Terminal_Block−` (TB2). Each bar is four studs: **two 5/16″-18** (2/0 DLO) and **two #10-32** (10/18 AWG HV). Small studs were 1/4″ on older sheets; the symbol now says **#10 studs**.
+
+Same copper blank for all three; landings:
+
+| Bar | Net | 5/16″ A | 5/16″ B | #10-32 A | #10-32 B |
+| --- | --- | --- | --- | --- | --- |
+| TB1 | pack + (rear / Anderson) | HV-08 (SW1) | HV-09 (SB350 +) | CH-DC+2 (32 A breaker) | DC-IN+2 (CB4) |
+| TB2 | pack − | HV-01 (BT2 −) | HV-10 (SB350 −) | CH-DC−2 (CB3) | DC-IN−2 (10 A breaker) |
+| TB3 | pack + (inverter / G1) | HV-11 (SB350 left +) | HV-14 (G1 A1+) | PC-01 (precharge) | unused |
+
+Physical part: C110 copper 1/4″ × 2″ × 101.6 mm (8″ stick split in half). 5/16″ through-bolts (2/0) and #10-32 (10/18 AWG HV) at the four corners; **SM40** under the center (~36 mm to each stud — underside 5/16″ heads clear the insulator). M8 through the copper into the top insert; M8 from chassis into the bottom. Not the battery-box brackets. See FreeCAD `bus bars/bus bars.FCStd`.
+
 Cell taps on BT2–BT6 are **not** wired on this sheet. Orion tap harness is 22 AWG to TE 1318389-1 (orange / red / yellow groups, black grounds). Schematic notes **internally termination** at the modules.
 
 ---
@@ -121,16 +135,16 @@ Cell taps on BT2–BT6 are **not** wired on this sheet. Orion tap harness is 22 
 
 TSM2500 DC is the included **Anderson SB50** (`AndersonSB50`). Mating is not a wire: left housing is the charger pigtail, right housing is the vehicle. Pigtail colors **red / black** carry through. Vehicle runs are **10 AWG HV** (labeled). Factory pigtail is 6 mm² (~10 AWG) unlabeled on the charger side of the SB50.
 
-SB50 mates top-to-top: charger **+** (left top) → vehicle right top → 32 A 2-pole → TerminalBlock1 1/4″ (pack +). Charger **−** (left bottom) → vehicle right bottom → Circuit_Breaker3 → TerminalBlock2 1/4″ (pack −).
+SB50 mates top-to-top: charger **+** (left top) → vehicle right top → 32 A 2-pole → TerminalBlock1 **#10-32** (pack +). Charger **−** (left bottom) → vehicle right bottom → Circuit_Breaker3 → TerminalBlock2 **#10-32** (pack −).
 
 | ID | Size / type | Color | End A | A termination | End B | B termination | Source |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | CH-DC+ | 6 mm² charger pigtail | red | TSM2500 **DC_Output_+** | charger DC + | AndersonSB50 left top | SB50 contact | TSM2500 pigtail |
 | CH-DC− | 6 mm² charger pigtail | black | TSM2500 **DC_Ouput_−** | charger DC − | AndersonSB50 left bottom | SB50 contact | TSM2500 pigtail |
 | CH-DC+V | 10 AWG HV | red | AndersonSB50 right top | SB50 contact | 2Pole_1000V_DC_32Amp1 B | breaker HV terminal | carry TSM2500 red |
-| CH-DC+2 | 10 AWG HV | red | 2Pole_1000V_DC_32Amp1 A | breaker HV terminal | TerminalBlock1 1/4″ | 1/4″ stud, ring lug | carry TSM2500 red |
+| CH-DC+2 | 10 AWG HV | red | 2Pole_1000V_DC_32Amp1 A | breaker HV terminal | TerminalBlock1 #10-32 | #10-32 stud, ring lug | carry TSM2500 red |
 | CH-DC−V | 10 AWG HV | black | AndersonSB50 right bottom | SB50 contact | Circuit_Breaker3 B | breaker HV terminal | carry TSM2500 black |
-| CH-DC−2 | 10 AWG HV | black | Circuit_Breaker3 A | breaker HV terminal | TerminalBlock2 1/4″ | 1/4″ stud, ring lug | carry TSM2500 black |
+| CH-DC−2 | 10 AWG HV | black | Circuit_Breaker3 A | breaker HV terminal | TerminalBlock2 #10-32 | #10-32 stud, ring lug | carry TSM2500 black |
 
 ---
 
@@ -149,9 +163,9 @@ dj70310 pin order top → bottom: Input+ / Input− / Key. DJ7021 pin order top 
 | DC-KEY0 | 0.5 mm² factory pigtail | green | DCIS **Key_Switch_Control** | DCIS 3-pin | dj70310-6.3-1 left bottom | 6.3 mm contact | DCIS green |
 | DC-IN+ | 10 AWG HV | red | dj70310-6.3-1 right top | 6.3 mm contact | Circuit_Breaker4 A | breaker HV terminal | vehicle HV+ |
 | DC-K4TAP | 18 AWG HV | red | splice on DC-IN+ | — | K4 pin 3 (+) | G9EJ #250 QC | pack + to key relay |
-| DC-IN+2 | 10 AWG HV | red | Circuit_Breaker4 B | breaker HV terminal | TerminalBlock1 1/4″ | 1/4″ stud | vehicle HV+ |
+| DC-IN+2 | 10 AWG HV | red | Circuit_Breaker4 B | breaker HV terminal | TerminalBlock1 #10-32 | #10-32 stud | vehicle HV+ |
 | DC-IN− | 10 AWG HV | black | dj70310-6.3-1 right mid | 6.3 mm contact | 2Pole_1000V_DC_10Amp1 A | breaker HV terminal | vehicle HV− |
-| DC-IN−2 | 10 AWG HV | black | 2Pole_1000V_DC_10Amp1 B | breaker HV terminal | TerminalBlock2 1/4″ | 1/4″ stud | vehicle HV− |
+| DC-IN−2 | 10 AWG HV | black | 2Pole_1000V_DC_10Amp1 B | breaker HV terminal | TerminalBlock2 #10-32 | #10-32 stud | vehicle HV− |
 | DC-KEY | 18 AWG HV | green | dj70310-6.3-1 right bottom | 6.3 mm contact | K4 pin 4 (−) | G9EJ #250 QC | carry DCIS green |
 | DC-OUT+ | 6.0 mm² factory pigtail | red | DCIS **Output+** | DCIS 2-pin | DJ7021-8-1 right top | 8.0 mm contact | DCIS red |
 | DC-OUT− | 6.0 mm² factory pigtail | black | DCIS **Output−** | DCIS 2-pin | DJ7021-8-1 right bottom | 8.0 mm contact | DCIS black |
@@ -160,7 +174,7 @@ Precharge path from pack + into the inverter (no pigtail). Schematic unlabeled; 
 
 | ID | Size / type | Color | End A | A termination | End B | B termination |
 | --- | --- | --- | --- | --- | --- | --- |
-| PC-01 | 18 AWG HV (unlabeled) | red | TerminalBlock3 1/4″ | 1/4″ stud | Circuit_Breaker2 | breaker HV terminal |
+| PC-01 | 18 AWG HV (unlabeled) | red | TerminalBlock3 #10-32 | #10-32 stud | Circuit_Breaker2 | breaker HV terminal |
 | PC-02 | 18 AWG HV (unlabeled) | red | Circuit_Breaker2 | breaker HV terminal | K2 (T9AP1D52-12) pin 4 | T9A QC |
 | PC-03 | 18 AWG HV (unlabeled) | red | K2 pin 3 | T9A QC | HyPer 9 **Precharge/Key_Switch_In** (K1-24) | AMPSEAL 776164-1 pin 24 |
 
@@ -353,9 +367,9 @@ K4 is Omron **G9EJ-1-E-UVD DC12** (see §5).
 
 ---
 
-## Schematic check (2026-08-23)
+## Schematic check (2026-08-26)
 
-Parsed `IH53EV.kicad_sch` after 10 AWG GXL (label GLX) update. Gaps left as documented:
+Parsed `IH53EV.kicad_sch` after the terminal-block symbol change (**#10 studs**, `Terminal_Block+` / `Terminal_Block−`). Gaps left as documented:
 
 - Traction 2/0 is **orange** with red/black heatshrink (vehicle convention; schematic stroke may still show +/−).
 - Vehicle DCIS pack HV is **red / black** from the 3-way; factory pigtail stays yellow / gray.
@@ -365,4 +379,5 @@ Parsed `IH53EV.kicad_sch` after 10 AWG GXL (label GLX) update. Gaps left as docu
 - DC-IN+ is one net with the K4 tap: **10 AWG HV** on breaker → stud, **18 AWG HV** at the tap (DC-K4TAP).
 - Circuit_Breaker3 / Circuit_Breaker4 / 2-pole breakers have empty Value fields; ratings are from the reference / nearby text (32 A charger, 10 A DCIS).
 - J1772 inlet instance reference is `J1773`.
-- Unused: Blue Sea circuits 1–4 and 6, Orion fan pins 9/10, Tesla cell-tap pins, one TerminalBlock3 1/4″ stud, USBConnector1 stub.
+- Unused: Blue Sea circuits 1–4 and 6, Orion fan pins 9/10, Tesla cell-tap pins, one TerminalBlock3 **#10-32** stud, USBConnector1 stub.
+- HV junction studs: schematic `Terminal_Block+` / `Terminal_Block−` now read **#10 studs** (not 1/4″) plus **5/16″ studs**. TB1 and TB3 are the + symbol; TB2 is the − symbol.

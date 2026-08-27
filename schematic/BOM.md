@@ -119,8 +119,10 @@ HyPer K1 already supplies CAN (K1-13 / K1-2), precharge/key (K1-24), and coil (K
 | --- | --- | --- | --- |
 | 12 | 2/0 ring, **5/16″** | 2/0 DLO | TB1/2/3 5/16″, module lugs, F4, SW1, SB350 |
 | 4 | 2/0 ring, **M8** | 2/0 DLO | Gigavac A1+ / A2−, HyPer B+ / B− if M8 |
-| 12 | 10 AWG HV ring, **1/4″** | 10 AWG HV | TB1/2 1/4″, charger DC and DCIS breakers |
-| 2 | 18 AWG HV ring, **1/4″** | 18 AWG HV | TB3 1/4″ precharge |
+| 6 | 10 AWG HV ring, **#10-32** | 10 AWG HV | TB1 / TB2 #10 studs (4 used + spares) |
+| 2 | 18 AWG HV ring, **#10-32** | 18 AWG HV | TB3 #10 precharge (+ spare) |
+| 12 | 10 AWG HV ring, **1/4″ or M6** | 10 AWG HV | charger DC and DCIS breaker terminals (match breaker) |
+| 4 | 18 AWG HV ring, **1/4″ or M6** | 18 AWG HV | Circuit_Breaker2 terminals (match breaker) |
 | 8 | 10 AWG ring, **5/16″–24** | 10 AWG GXL | K3 studs, MAXI 5006, battery posts |
 | 4 | 10 AWG ring, **#10-32** | 10 AWG GXL | Blue Sea Always_Hot / Switched / Battery− |
 | 8 | 18 AWG ring or spade, **#8-32** | 18 AWG | Blue Sea circuits |
@@ -129,7 +131,27 @@ HyPer K1 already supplies CAN (K1-13 / K1-2), precharge/key (K1-24), and coil (K
 | 20 | 0.250″ QC (insulated), 18 AWG | 18 AWG | T92 A1/A2, T9A, G9EJ, Cole Hersee coil |
 | 10 | 18 AWG HV 0.250″ QC | 18 AWG HV | G9EJ contacts 3/4, T9A pins 3/4 |
 | 1 pack | heat-shrink, adhesive lined, 10 AWG through 18 AWG | — | every small lug |
-| 1 | 3× HV junction / terminal block with **5/16″ and 1/4″** studs | TB1, TB2, TB3 | make or buy copper bars |
+| — | HV bus bars TB1/TB2/TB3 | 5/16″-18 + #10-32 | make — §6b |
+
+---
+
+## 6b. Buy / make — HV copper bus bars
+
+Three identical C110 bars. TB1 and TB3 are pack **+**; TB2 is pack **−**. 500 A pack fuse (A25X500-4) sets the section: 1/4″ × 2″ is ~323 mm², enough for a short open 500 A run. Split **8″** sticks in half (**4.00″ / 101.6 mm**); two sticks make three bars plus a spare. Through-bolt 5/16″ heads under the bar clear the SM40 (~36 mm c-c).
+
+| Qty | Item | MPN / spec | Used for |
+| --- | --- | --- | --- |
+| 3 | Copper bar blank | C110, **1/4″ × 2″**, cut **101.6 mm** (8″ stick split in half; buy 2 sticks) | TB1, TB2, TB3 |
+| 6 | 5/16″-18 bus stud, SS or silicon bronze, ~1.25″ above bar | brazed, press-in, or through-bolt + jam nut | 2/0 landings |
+| 6 | #10-32 bus stud, SS or silicon bronze, ~1.0″ above bar | same | 10/18 AWG HV landings |
+| 12 | 5/16″-18 hex nut + SAE flat washer + Belleville | SS | 2/0 clamp (2 nuts/stud if through-bolt) |
+| 12 | #10-32 hex nut + #10 washer + Belleville | SS | small HV clamp |
+| 3 | **SM40** busbar standoff | BMC, 40 mm tall, 40 mm face / 34 mm waist, **M8** inserts 11 mm both ends, 1000 VAC / 1500 VDC | 1 per bar, under the center; **not** battery-box mounts |
+| 6 | M8 × 20 mm hex bolt + M8 flat washer | SS or zinc | 1 through bar into SM40 top; 1 from chassis into SM40 bottom |
+
+Do **not** substitute 1/4″ lugs on the small studs — #10-32 is 0.190″, not 0.250″.
+
+Do **not** land a cable on the center M8 — that bolt only clamps the bar to the SM40. Torque the M8 to the insulator rating (~13 N·m), not lug torque.
 
 ---
 
@@ -171,3 +193,4 @@ HyPer K1 already supplies CAN (K1-13 / K1-2), precharge/key (K1-24), and coil (K
 - RAC02 taps: buy **18 AWG 300 VAC** (schematic also says 18AWG AC).
 - J1772 symbol reference is `J1773`.
 - Circuit_Breaker3 is the second pole of the **32 A** charger DC breaker; Circuit_Breaker4 is the second pole of the **10 A** DCIS breaker.
+- TB1/TB3 (`Terminal_Block+`) and TB2 (`Terminal_Block−`): small studs are **#10-32**, not 1/4″. 2/0 still lands on **5/16″**.

@@ -172,7 +172,7 @@
 			)
 		)
 		(symbol "Terminal_Block+_1_1"
-			(text "1/4\" studs"
+			(text "#10 studs"
 				(at 0 -8.89 0)
 				(effects
 					(font
@@ -433,7 +433,7 @@
 			)
 		)
 		(symbol "Terminal_Block-_1_1"
-			(text "1/4\" studs"
+			(text "#10 studs"
 				(at 0 13.97 0)
 				(effects
 					(font
