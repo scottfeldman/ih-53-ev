@@ -1,0 +1,164 @@
+(footprint "ThruWall_M8"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Through-wall M8 power terminal. Panel cutout Ø25.4 plus two Ø4.5 holes on 44 mm centers. Elongated 34 mm flange.")
+	(tags "through-wall feedthrough M8 terminal 300A")
+	(property "Reference" "REF**"
+		(at 0 20 0)
+		(layer "F.SilkS")
+		(uuid "57bbd81b-739c-42e0-98b8-9655e335122b")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "ThruWall_M8"
+		(at 0 -21 0)
+		(layer "F.Fab")
+		(uuid "475c803a-e42a-4644-98d0-aeff3ff38092")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "dc57f7ac-32fb-4afd-9871-3a67582813a6")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "300A M8 through-wall power terminal"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "aa03f902-68f7-41f7-920b-bf2807c9a7eb")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_poly
+		(pts
+			(xy -28.5 0) (xy -27.629 -3.25) (xy -25.25 -5.629) (xy -8.5 -14.722)
+			(xy 0 -17) (xy 8.5 -14.722) (xy 25.25 -5.629) (xy 27.629 -3.25)
+			(xy 28.5 0) (xy 27.629 3.25) (xy 25.25 5.629) (xy 8.5 14.722)
+			(xy 0 17) (xy -8.5 14.722) (xy -25.25 5.629) (xy -27.629 3.25)
+		)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "c2c1291f-7681-4278-9f81-2a94e4946ac3")
+	)
+	(fp_rect
+		(start -29.5 -18)
+		(end 29.5 18)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "2091995b-c9db-4bdf-8b3f-6476510ba747")
+	)
+	(fp_circle
+		(center 0 0)
+		(end 8.75 0)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "96c20e94-551d-4bd1-b941-3dec71c2bfe2")
+	)
+	(fp_circle
+		(center 0 0)
+		(end 12.7 0)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "b0ade554-7a99-46b4-9312-ee92e50d48f1")
+	)
+	(fp_poly
+		(pts
+			(xy -28.5 0) (xy -27.629 -3.25) (xy -25.25 -5.629) (xy -8.5 -14.722)
+			(xy 0 -17) (xy 8.5 -14.722) (xy 25.25 -5.629) (xy 27.629 -3.25)
+			(xy 28.5 0) (xy 27.629 3.25) (xy 25.25 5.629) (xy 8.5 14.722)
+			(xy 0 17) (xy -8.5 14.722) (xy -25.25 5.629) (xy -27.629 3.25)
+		)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "35a6912d-83f5-440f-9b07-0049a3f37bdf")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 19 0)
+		(layer "F.Fab")
+		(uuid "3d960d50-1fe4-45cf-a8ab-5b7998ef227b")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "" np_thru_hole circle
+		(at -22 0)
+		(size 4.5 4.5)
+		(drill 4.5)
+		(layers "*.Cu" "*.Mask")
+		(uuid "328050d2-0b0e-4af7-bc7c-4102bd857284")
+	)
+	(pad "" np_thru_hole circle
+		(at 22 0)
+		(size 4.5 4.5)
+		(drill 4.5)
+		(layers "*.Cu" "*.Mask")
+		(uuid "c99aa5be-c931-4d43-b2f0-e678af3ab210")
+	)
+	(pad "1" thru_hole circle
+		(at 0 0)
+		(size 26.4 26.4)
+		(drill 25.4)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "ebc0a5dd-06ce-4d65-bf72-d9bfdba5a50f")
+	)
+	(embedded_fonts no)
+	(model "${KIPRJMOD}/../thru wall terminals/ThruWall_M8.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)

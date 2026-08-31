@@ -1,0 +1,4 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "ThruWallTerminal") (type "KiCad") (uri "${KIPRJMOD}/ThruWallTerminal.pretty") (options "") (descr "M8 through-wall power terminal"))
+)

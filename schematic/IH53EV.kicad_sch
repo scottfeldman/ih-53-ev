@@ -489,6 +489,155 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Current Sensor:Orion_Current_Sensor"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "OrionCurrentSensor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "Orion_Current_Sensor_0_1"
+				(rectangle
+					(start -8.89 -3.81)
+					(end 8.89 -17.78)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type color)
+						(color 255 255 194 1)
+					)
+				)
+			)
+			(symbol "Orion_Current_Sensor_1_1"
+				(pin input line
+					(at -11.43 -6.35 0)
+					(length 2.54)
+					(name "+5V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -11.43 -8.89 0)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -11.43 -11.43 0)
+					(length 2.54)
+					(name "Low_Channel"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -11.43 -13.97 0)
+					(length 2.54)
+					(name "High_Channel"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "DCIS DC-DC Convertor:Convertor"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -3486,6 +3635,156 @@
 						)
 					)
 					(number "K1-26"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Orion_BMS:Current_Sensor"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "OrionBMSCurrentSensor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "Current_Sensor_0_1"
+				(rectangle
+					(start -21.59 -3.81)
+					(end 21.59 -17.78)
+					(stroke
+						(width 0)
+						(type default)
+						(color 0 0 0 1)
+					)
+					(fill
+						(type color)
+						(color 255 255 194 1)
+					)
+				)
+			)
+			(symbol "Current_Sensor_1_1"
+				(pin input line
+					(at 24.13 -6.35 180)
+					(length 2.54)
+					(name "+5V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 24.13 -8.89 180)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 24.13 -11.43 180)
+					(length 2.54)
+					(name "Low_Channel"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 24.13 -13.97 180)
+					(length 2.54)
+					(name "High_Channel"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number ""
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -7976,7 +8275,7 @@
 	)
 	(text "+"
 		(exclude_from_sim no)
-		(at 543.052 294.386 0)
+		(at 543.052 310.896 0)
 		(effects
 			(font
 				(size 2.54 2.54)
@@ -8009,7 +8308,7 @@
 	)
 	(text "2/0 DLO"
 		(exclude_from_sim no)
-		(at 458.724 286.004 90)
+		(at 457.454 278.892 90)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8233,7 +8532,7 @@
 	)
 	(text "-"
 		(exclude_from_sim no)
-		(at 452.12 294.132 0)
+		(at 452.12 310.642 0)
 		(effects
 			(font
 				(size 2.54 2.54)
@@ -8786,7 +9085,7 @@
 	)
 	(wire
 		(pts
-			(xy 530.86 312.42) (xy 523.24 312.42)
+			(xy 530.86 328.93) (xy 523.24 328.93)
 		)
 		(stroke
 			(width 0)
@@ -8977,6 +9276,16 @@
 	)
 	(wire
 		(pts
+			(xy 339.09 298.45) (xy 443.23 298.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "262c6b6e-215f-4766-ac6b-dd4313970c52")
+	)
+	(wire
+		(pts
 			(xy 480.06 209.55) (xy 476.25 209.55)
 		)
 		(stroke
@@ -8988,7 +9297,7 @@
 	)
 	(wire
 		(pts
-			(xy 454.66 292.1) (xy 454.66 297.18)
+			(xy 454.66 308.61) (xy 454.66 313.69)
 		)
 		(stroke
 			(width 0)
@@ -8998,7 +9307,7 @@
 	)
 	(wire
 		(pts
-			(xy 523.24 334.01) (xy 523.24 330.2)
+			(xy 523.24 350.52) (xy 523.24 346.71)
 		)
 		(stroke
 			(width 0)
@@ -9030,7 +9339,7 @@
 	)
 	(wire
 		(pts
-			(xy 485.14 312.42) (xy 485.14 294.64)
+			(xy 485.14 328.93) (xy 485.14 311.15)
 		)
 		(stroke
 			(width 0)
@@ -9058,6 +9367,16 @@
 			(color 0 0 255 1)
 		)
 		(uuid "35524122-b71a-405a-a1cf-0886f5b1a1b8")
+	)
+	(wire
+		(pts
+			(xy 339.09 295.91) (xy 443.23 295.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "35fee25e-5237-4823-829d-9605a67e64fb")
 	)
 	(wire
 		(pts
@@ -9126,7 +9445,7 @@
 	)
 	(wire
 		(pts
-			(xy 483.87 311.15) (xy 483.87 294.64)
+			(xy 483.87 327.66) (xy 483.87 311.15)
 		)
 		(stroke
 			(width 0)
@@ -9158,7 +9477,7 @@
 	)
 	(wire
 		(pts
-			(xy 541.02 259.08) (xy 541.02 292.1)
+			(xy 541.02 259.08) (xy 541.02 308.61)
 		)
 		(stroke
 			(width 0.762)
@@ -9169,7 +9488,7 @@
 	)
 	(wire
 		(pts
-			(xy 476.25 312.42) (xy 485.14 312.42)
+			(xy 476.25 328.93) (xy 485.14 328.93)
 		)
 		(stroke
 			(width 0)
@@ -9221,7 +9540,7 @@
 	)
 	(wire
 		(pts
-			(xy 541.02 292.1) (xy 541.02 349.25)
+			(xy 541.02 308.61) (xy 541.02 365.76)
 		)
 		(stroke
 			(width 0)
@@ -9306,7 +9625,7 @@
 	)
 	(wire
 		(pts
-			(xy 476.25 312.42) (xy 476.25 314.96)
+			(xy 476.25 328.93) (xy 476.25 331.47)
 		)
 		(stroke
 			(width 0)
@@ -9316,7 +9635,7 @@
 	)
 	(wire
 		(pts
-			(xy 501.65 314.96) (xy 501.65 311.15)
+			(xy 501.65 331.47) (xy 501.65 327.66)
 		)
 		(stroke
 			(width 0)
@@ -9412,7 +9731,7 @@
 	)
 	(wire
 		(pts
-			(xy 454.66 276.86) (xy 454.66 292.1)
+			(xy 454.66 276.86) (xy 454.66 308.61)
 		)
 		(stroke
 			(width 0.762)
@@ -9455,7 +9774,7 @@
 	)
 	(wire
 		(pts
-			(xy 454.66 311.15) (xy 483.87 311.15)
+			(xy 454.66 327.66) (xy 483.87 327.66)
 		)
 		(stroke
 			(width 0)
@@ -9486,7 +9805,7 @@
 	)
 	(wire
 		(pts
-			(xy 530.86 330.2) (xy 530.86 349.25)
+			(xy 530.86 346.71) (xy 530.86 365.76)
 		)
 		(stroke
 			(width 0)
@@ -9518,7 +9837,7 @@
 	)
 	(wire
 		(pts
-			(xy 523.24 312.42) (xy 523.24 314.96)
+			(xy 523.24 328.93) (xy 523.24 331.47)
 		)
 		(stroke
 			(width 0)
@@ -9561,7 +9880,7 @@
 	)
 	(wire
 		(pts
-			(xy 454.66 314.96) (xy 454.66 311.15)
+			(xy 454.66 331.47) (xy 454.66 327.66)
 		)
 		(stroke
 			(width 0)
@@ -9602,7 +9921,7 @@
 	)
 	(wire
 		(pts
-			(xy 501.65 294.64) (xy 501.65 297.18)
+			(xy 501.65 311.15) (xy 501.65 313.69)
 		)
 		(stroke
 			(width 0)
@@ -9623,7 +9942,7 @@
 	)
 	(wire
 		(pts
-			(xy 485.14 294.64) (xy 501.65 294.64)
+			(xy 485.14 311.15) (xy 501.65 311.15)
 		)
 		(stroke
 			(width 0)
@@ -9644,7 +9963,7 @@
 	)
 	(wire
 		(pts
-			(xy 501.65 334.01) (xy 501.65 327.66)
+			(xy 501.65 350.52) (xy 501.65 344.17)
 		)
 		(stroke
 			(width 0)
@@ -9718,7 +10037,7 @@
 	)
 	(wire
 		(pts
-			(xy 530.86 327.66) (xy 530.86 312.42)
+			(xy 530.86 344.17) (xy 530.86 328.93)
 		)
 		(stroke
 			(width 0)
@@ -9739,7 +10058,7 @@
 	)
 	(wire
 		(pts
-			(xy 530.86 294.64) (xy 523.24 294.64)
+			(xy 530.86 311.15) (xy 523.24 311.15)
 		)
 		(stroke
 			(width 0)
@@ -9749,7 +10068,7 @@
 	)
 	(wire
 		(pts
-			(xy 501.65 327.66) (xy 530.86 327.66)
+			(xy 501.65 344.17) (xy 530.86 344.17)
 		)
 		(stroke
 			(width 0)
@@ -9833,7 +10152,7 @@
 	)
 	(wire
 		(pts
-			(xy 530.86 349.25) (xy 541.02 349.25)
+			(xy 530.86 365.76) (xy 541.02 365.76)
 		)
 		(stroke
 			(width 0)
@@ -9850,6 +10169,16 @@
 			(type default)
 		)
 		(uuid "79b35ad9-036a-497c-8013-8de557642fdd")
+	)
+	(wire
+		(pts
+			(xy 339.09 290.83) (xy 443.23 290.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7a371794-b015-4592-9448-4377e1a6724e")
 	)
 	(wire
 		(pts
@@ -9882,6 +10211,16 @@
 			(color 0 0 255 1)
 		)
 		(uuid "7c9ca7e2-156e-4c63-ba0b-486154889b1e")
+	)
+	(wire
+		(pts
+			(xy 339.09 293.37) (xy 443.23 293.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7d0a669b-6b70-4107-ba42-801047aff3be")
 	)
 	(wire
 		(pts
@@ -10144,7 +10483,7 @@
 	)
 	(wire
 		(pts
-			(xy 476.25 294.64) (xy 476.25 297.18)
+			(xy 476.25 311.15) (xy 476.25 313.69)
 		)
 		(stroke
 			(width 0)
@@ -10350,7 +10689,7 @@
 	)
 	(wire
 		(pts
-			(xy 501.65 311.15) (xy 530.86 311.15)
+			(xy 501.65 327.66) (xy 530.86 327.66)
 		)
 		(stroke
 			(width 0)
@@ -10360,7 +10699,7 @@
 	)
 	(wire
 		(pts
-			(xy 530.86 311.15) (xy 530.86 294.64)
+			(xy 530.86 327.66) (xy 530.86 311.15)
 		)
 		(stroke
 			(width 0)
@@ -10435,7 +10774,7 @@
 	)
 	(wire
 		(pts
-			(xy 483.87 294.64) (xy 476.25 294.64)
+			(xy 483.87 311.15) (xy 476.25 311.15)
 		)
 		(stroke
 			(width 0)
@@ -10585,7 +10924,7 @@
 	)
 	(wire
 		(pts
-			(xy 523.24 294.64) (xy 523.24 297.18)
+			(xy 523.24 311.15) (xy 523.24 313.69)
 		)
 		(stroke
 			(width 0)
@@ -10788,7 +11127,7 @@
 	)
 	(wire
 		(pts
-			(xy 523.24 330.2) (xy 530.86 330.2)
+			(xy 523.24 346.71) (xy 530.86 346.71)
 		)
 		(stroke
 			(width 0)
@@ -11383,7 +11722,7 @@
 		(dnp no)
 		(polyline
 			(pts
-				(xy 441.96 292.1) (xy 549.91 292.1) (xy 549.91 353.06) (xy 441.96 353.06)
+				(xy 441.96 308.61) (xy 549.91 308.61) (xy 549.91 369.57) (xy 441.96 369.57)
 			)
 			(stroke
 				(width 0)
@@ -11526,6 +11865,93 @@
 			(project "IH53EV"
 				(path "/20bcdb30-6107-4dbd-a268-7abc52ed82ed"
 					(reference "BBCANOPCanbusIsolator1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Current Sensor:Orion_Current_Sensor")
+		(at 454.66 284.48 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "0ea512b7-436a-4d35-bb14-0539edb9b91d")
+		(property "Reference" "OrionCurrentSensor1"
+			(at 464.82 295.2749 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" ""
+			(at 454.66 284.48 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 454.66 284.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 454.66 284.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 454.66 284.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin ""
+			(uuid "5b4931c4-2445-4b91-8aa1-b5efa8f8c139")
+		)
+		(pin ""
+			(uuid "9c83f6e8-9274-4a16-a95d-51835a3a95f6")
+		)
+		(pin ""
+			(uuid "7e194cd5-98cb-437b-bcd5-38bd9cd1d3f2")
+		)
+		(pin ""
+			(uuid "c8a2cea9-9e72-4f53-b3e1-4b5a262b734e")
+		)
+		(instances
+			(project "IH53EV"
+				(path "/20bcdb30-6107-4dbd-a268-7abc52ed82ed"
+					(reference "OrionCurrentSensor1")
 					(unit 1)
 				)
 			)
@@ -12002,7 +12428,7 @@
 	(symbol
 		(lib_name "Tesla_Model_S_2")
 		(lib_id "Battery Module:Tesla_Model_S")
-		(at 511.81 298.45 0)
+		(at 511.81 314.96 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -12013,7 +12439,7 @@
 		(fields_autoplaced yes)
 		(uuid "26bba176-4022-4a09-a180-8abec68341f3")
 		(property "Reference" "BT4"
-			(at 512.445 308.61 0)
+			(at 512.445 325.12 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -12023,7 +12449,7 @@
 			)
 		)
 		(property "Value" ""
-			(at 511.81 298.45 0)
+			(at 511.81 314.96 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -12033,7 +12459,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 511.81 298.45 0)
+			(at 511.81 314.96 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12044,7 +12470,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 511.81 298.45 0)
+			(at 511.81 314.96 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12055,7 +12481,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 511.81 298.45 0)
+			(at 511.81 314.96 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12682,7 +13108,7 @@
 	)
 	(symbol
 		(lib_id "Battery Module:Tesla_Model_S")
-		(at 464.82 298.45 0)
+		(at 464.82 314.96 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -12693,7 +13119,7 @@
 		(fields_autoplaced yes)
 		(uuid "4a8849e4-ea13-4eb4-9569-b2911bf6d33f")
 		(property "Reference" "BT2"
-			(at 465.455 308.61 0)
+			(at 465.455 325.12 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -12703,7 +13129,7 @@
 			)
 		)
 		(property "Value" ""
-			(at 464.82 298.45 0)
+			(at 464.82 314.96 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -12713,7 +13139,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 464.82 298.45 0)
+			(at 464.82 314.96 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12724,7 +13150,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 464.82 298.45 0)
+			(at 464.82 314.96 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12735,7 +13161,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 464.82 298.45 0)
+			(at 464.82 314.96 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12847,7 +13273,7 @@
 	(symbol
 		(lib_name "Tesla_Model_S_3")
 		(lib_id "Battery Module:Tesla_Model_S")
-		(at 511.81 316.23 0)
+		(at 511.81 332.74 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -12858,7 +13284,7 @@
 		(fields_autoplaced yes)
 		(uuid "4fb870f0-02c6-4c86-a84e-71895e578e1a")
 		(property "Reference" "BT5"
-			(at 512.445 326.39 0)
+			(at 512.445 342.9 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -12868,7 +13294,7 @@
 			)
 		)
 		(property "Value" ""
-			(at 511.81 316.23 0)
+			(at 511.81 332.74 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -12878,7 +13304,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 511.81 316.23 0)
+			(at 511.81 332.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12889,7 +13315,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 511.81 316.23 0)
+			(at 511.81 332.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12900,7 +13326,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 511.81 316.23 0)
+			(at 511.81 332.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13183,7 +13609,7 @@
 	(symbol
 		(lib_name "Tesla_Model_S_1")
 		(lib_id "Battery Module:Tesla_Model_S")
-		(at 464.82 316.23 0)
+		(at 464.82 332.74 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -13194,7 +13620,7 @@
 		(fields_autoplaced yes)
 		(uuid "62c3e0ff-5e5d-43d1-8729-a9907c7bb8d3")
 		(property "Reference" "BT3"
-			(at 465.455 326.39 0)
+			(at 465.455 342.9 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -13204,7 +13630,7 @@
 			)
 		)
 		(property "Value" ""
-			(at 464.82 316.23 0)
+			(at 464.82 332.74 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -13214,7 +13640,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 464.82 316.23 0)
+			(at 464.82 332.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13225,7 +13651,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 464.82 316.23 0)
+			(at 464.82 332.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13236,7 +13662,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 464.82 316.23 0)
+			(at 464.82 332.74 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -14755,6 +15181,92 @@
 		)
 	)
 	(symbol
+		(lib_id "Orion_BMS:Current_Sensor")
+		(at 314.96 284.48 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c2d0de9c-e018-4cb0-8499-7acec3e560a2")
+		(property "Reference" "OrionBMSCurrentSensor"
+			(at 314.96 285.75 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" ""
+			(at 314.96 284.48 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 314.96 284.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 314.96 284.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 314.96 284.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin ""
+			(uuid "7a622e04-dab9-45cc-8445-f3bcf0fe2f40")
+		)
+		(pin ""
+			(uuid "559c9136-f00e-48f7-813e-b939f953e85d")
+		)
+		(pin ""
+			(uuid "9486c018-ea66-4437-b44c-999a37e12a32")
+		)
+		(pin ""
+			(uuid "ce71bad0-e868-437b-a597-f3c9f4bb83c6")
+		)
+		(instances
+			(project "IH53EV"
+				(path "/20bcdb30-6107-4dbd-a268-7abc52ed82ed"
+					(reference "OrionBMSCurrentSensor")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_name "J1772_1")
 		(lib_id "Thunderstuck TSM2500:J1772")
 		(at 374.65 105.41 0)
@@ -15100,7 +15612,7 @@
 	(symbol
 		(lib_name "Tesla_Model_S_4")
 		(lib_id "Battery Module:Tesla_Model_S")
-		(at 511.81 335.28 0)
+		(at 511.81 351.79 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -15111,7 +15623,7 @@
 		(fields_autoplaced yes)
 		(uuid "e402df5d-80bd-4c4c-b420-59af34cc2c6c")
 		(property "Reference" "BT6"
-			(at 512.445 345.44 0)
+			(at 512.445 361.95 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -15121,7 +15633,7 @@
 			)
 		)
 		(property "Value" ""
-			(at 511.81 335.28 0)
+			(at 511.81 351.79 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -15131,7 +15643,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 511.81 335.28 0)
+			(at 511.81 351.79 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -15142,7 +15654,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 511.81 335.28 0)
+			(at 511.81 351.79 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -15153,7 +15665,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 511.81 335.28 0)
+			(at 511.81 351.79 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)

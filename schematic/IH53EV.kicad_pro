@@ -518,7 +518,7 @@
         "uuid": "20bcdb30-6107-4dbd-a268-7abc52ed82ed"
       }
     ],
-    "used_designators": "C1",
+    "used_designators": "Orion BMS 2 I/O1,OrionBMSCurrentSensor1-2,OrionCurrentSensor1,C1",
     "variants": []
   },
   "sheets": [

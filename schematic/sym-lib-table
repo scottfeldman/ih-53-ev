@@ -1,0 +1,4 @@
+(sym_lib_table
+	(version 7)
+	(lib (name "ThruWallTerminal") (type "KiCad") (uri "${KIPRJMOD}/ThruWallTerminal.kicad_sym") (options "") (descr "M8 through-wall power terminal"))
+)
