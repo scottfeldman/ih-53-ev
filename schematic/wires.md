@@ -231,6 +231,8 @@ Ignition / inertia (coil side of K3). No factory harness; **red** = switched 12 
 | 12-KEY | 18 AWG TXL | red | SW4 B | switch terminal | Blue Sea **Key_Switch** circuit | #8-32 screw, ring/spade |
 | 12-K3GND | 18 AWG TXL (unlabeled) | black | K3 pin 1 | coil QC | chassis GND | ring to chassis |
 
+Dash **Instruments** (SW5) is Always_Hot, not this ignition chain — see §11.
+
 K4 is **Omron G9EJ-1-E-UVD DC12** (schematic value). Coil is 12 V continuous on the READY rail (TXL), 100 mA / 1.2 W. Contacts close pack + onto the DCIS key (HV, signal current). Polarized contacts: pack + on terminal **3 (+)**, key on terminal **4 (−)**. Coil has no polarity. 0.250″ QC.
 
 | ID | Size / type | Color | End A | A termination | End B | B termination |
@@ -322,6 +324,16 @@ Carry the same K1 CAN colors through the DTM.
 
 USBConnector1 has a second pin with a short unterminated stub on the schematic (no far-end device).
 
+### 8.5 Dash PiCAN 3 (RPi 5 instrument panel)
+
+Tap **BMS-side CAN1** (same net as CANdapter / Orion / TSM2500), not the Deutsch/HyPer side of the isolator. **120 Ω jumper on the PiCAN 3 stays open** — Orion and HyPer already terminate. Stub to the dash at 250 kbps; keep it twisted with the CAN1 pair.
+
+| ID | Size / type | Color | End A | A termination | End B | B termination |
+| --- | --- | --- | --- | --- | --- | --- |
+| CAN-PI-H | 18–20 AWG STP | Orion CAN1_H (*verify inner*) | splice on **CAN1-H** | tap | PiCAN 3 **CAN_H** | screw / DB9 pin 7 |
+| CAN-PI-L | 18–20 AWG STP | Orion CAN1_L (*verify inner*) | splice on **CAN1-L** | tap | PiCAN 3 **CAN_L** | screw / DB9 pin 2 |
+| CAN-PI-G | 18 AWG TXL | black | PiCAN 3 **GND** | screw | chassis GND *or* WP-L1 ground | ring / splice |
+
 ---
 
 ## 9. J1772 pilot / proximity (Orion)
@@ -346,17 +358,41 @@ Use the **K1 harness color printed for that pin** (kits vary). No published colo
 
 ---
 
+## 11. Dash instrument panel (RPi 5 / PiCAN 3 / SW5)
+
+RPi 5 and PiCAN 3 live at the **front** (dash). They are **not** in the Ready/Precharge path. A Pi crash or a late boot does not drop Orion READY, K2, the isolator, or K4.
+
+**SW5 Instruments** is a dash SPST on **Always_Hot** so the Pi can boot before the key. Blue Sea **Dash/Pi** is the Always_Hot fused circuit (circuit 4 on the Always_On half of the 5032) — not the Switched / Ready half.
+
+Typical order: SW5 on → wait for the dash → key on. Orion Always_On is already live, so a booted Pi sees BMS CAN1 before READY. If the key comes first, missed startup frames are acceptable; poll Orion for current SOC / voltages / flags and continue.
+
+Turn SW5 **off** when leaving. The Pi will flatten BT1 if left on; K4 / DC-DC only run after Ready.
+
+**Display:** official **Raspberry Pi Touch Display 2 10″** (1200×1920, Pi 5 only). DSI FFC for video/touch. The supplied GPIO pigtail feeds the panel from the Pi **5 V / GND** pins (display `J1`). No separate screen PSU.
+
+**5 V:** use the PiCAN 3 **3 A SMPS** (6–20 V in on the screw terminal). That rail also feeds the 10″ panel. Pi 5 + 10″ TD2 + PiCAN is typically ~8–12 W; 3 A is 15 W. Leave USB empty (header power makes the Pi assume 3 A and cap USB at 600 mA). Do **not** also plug USB-C into the Pi. If you see undervoltage, drop brightness or add a 5 A 5 V supply later.
+
+The display pigtail wants the same 5 V header pins the HAT covers. Use a stacking header and pick 5 V/GND off the top, or tap 5 V/GND on the PiCAN to display `J1`. Do not run a second 5 V supply into those pins.
+
+| ID | Size / type | Color | End A | A termination | End B | B termination |
+| --- | --- | --- | --- | --- | --- | --- |
+| 12-PI | 18 AWG TXL | red | Blue Sea **Dash/Pi** | #8-32 screw | SW5 A | switch terminal |
+| 12-PISW | 18 AWG TXL | red | SW5 B | switch terminal | PiCAN 3 **+12 V** | screw terminal |
+| 12-PIGND | 18 AWG TXL | black | PiCAN 3 **GND** | screw terminal | chassis GND | ring to chassis |
+
+---
+
 ## Not wired on this sheet
 
 | Item | Notes |
 | --- | --- |
 | Orion **Fan_Monitor_MPI3** pin 9, **Fan_Enable_MPO3** pin 10 | No-connect (leave CWHMIO tails capped) |
-| Blue Sea 5032 fused circuits 1–4 and 6 | Unused (circuit 5 is Key_Switch / 12-KEY) |
+| Blue Sea 5032 fused circuits 1, 3 and unused 6 | Unused (circuit 5 is Key_Switch / 12-KEY; Always_Hot circuit 4 is **Dash/Pi**) |
 | Tesla module cell taps | Separate Orion tap harness (22 AWG, orange / red / yellow, black grounds) |
 | HyPer 9 motor phase / encoder / thermistor | Encoder: red / yellow / green / black as in HyPer manual |
 | TSM2500 12 V aux, LED, drive-away, temp | Not on this schematic |
 
-K4 is Omron **G9EJ-1-E-UVD DC12** (see §5).
+K4 is Omron **G9EJ-1-E-UVD DC12** (see §5). SW5 is the dash Instruments switch for the RPi 5 (see §11).
 
 ### CWHMIO pins still to read off the card
 
@@ -379,5 +415,6 @@ Parsed `IH53EV.kicad_sch` after the terminal-block symbol change (**#10 studs**,
 - DC-IN+ is one net with the K4 tap: **10 AWG HV** on breaker → stud, **18 AWG HV** at the tap (DC-K4TAP).
 - Circuit_Breaker3 / Circuit_Breaker4 / 2-pole breakers have empty Value fields; ratings are from the reference / nearby text (32 A charger, 10 A DCIS).
 - J1772 inlet instance reference is `J1773`.
-- Unused: Blue Sea circuits 1–4 and 6, Orion fan pins 9/10, Tesla cell-tap pins, one TerminalBlock3 **#10-32** stud, USBConnector1 stub.
+- Unused: Blue Sea circuits 1, 3 and unused 6, Orion fan pins 9/10, Tesla cell-tap pins, one TerminalBlock3 **#10-32** stud, USBConnector1 stub.
+- RPi 5 + PiCAN 3 at the dash. SW5 **Instruments** feeds them from Always_Hot **Dash/Pi**. Ready/Precharge is not gated.
 - HV junction studs: schematic `Terminal_Block+` / `Terminal_Block−` now read **#10 studs** (not 1/4″) plus **5/16″ studs**. TB1 and TB3 are the + symbol; TB2 is the − symbol.

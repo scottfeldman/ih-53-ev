@@ -54,13 +54,19 @@ Breaker Values are empty on the schematic; ratings above are from the reference 
 | Qty | Item | MPN / spec | Used for | Where |
 | --- | --- | --- | --- | --- |
 | 1 | ST Blade split-bus fuse block | Blue Sea **5032** | Always_Hot / Switched / fused circuits | Blue Sea / West Marine |
-| 1 | ATO/ATC fuse assortment 5–15 A | — | Blue Sea circuits actually used (Always_On, Ready/Precharge, Key_Switch). Circuits 1–4 and 6 unused. | any |
+| 1 | ATO/ATC fuse assortment 5–15 A | — | Blue Sea circuits actually used (Always_On, Ready/Precharge, Key_Switch, **Dash/Pi**). Circuits 1, 3 and unused 6 still open. | any |
 | 1 | PCB AC/DC 2 W, 12 V out, 85–305 VAC | Recom **RAC02-12SE/277** (schematic `RAC02-12SE_277`). If NRND, successor in RAC02-E/277 or RAC02-SK 12 V 2 W | charge 12 V for T92 / Orion CHARGE | DigiKey / Mouser |
 | 1 | CAN isolator | Advantech **BB-CANOP** | HyPer CAN ↔ Orion CAN1 | Advantech / DigiKey |
 | 1 | SAE J1772 inlet (16–32 A) | any listed J1772 socket | AC + CP + PP (`J1773` on the sheet) | EVSE suppliers |
 | 1 | Ignition / key SPST | schematic SW3 | K3 coil | automotive |
 | 1 | Inertia / crash switch, SPST, NC or as wired | schematic SW4 | series with ignition | automotive (GM-style inertia) |
+| 1 | Dash **Instruments** SPST | schematic SW5 | Always_Hot Dash/Pi → RPi 5 supply | automotive |
 | 1 | USB bulkhead or USB-A/B extension | USBConnector1 | CANdapter USB | any |
+| 1 | Raspberry Pi 5 (4–8 GB) | official Pi 5 | dash instrument panel | Pi / authorized |
+| 1 | PiCAN 3 HAT with **3 A SMPS** | SK Pang / Copperhill PiCAN 3 | CAN1 tap + 5 V for Pi and display | Copperhill / SK Pang |
+| 1 | Raspberry Pi **Touch Display 2 10″** | official, 1200×1920, includes DSI FFC + GPIO power pigtail | dash | Pi / authorized |
+| 1 | 40-pin stacking header (extra-tall) | — | 5 V/GND out the top of the PiCAN for the display pigtail | any |
+| 1 | 12 V → 5 V / 5 A USB-C (optional spare) | only if the 3 A SMPS browns out | fallback Pi + display power | automotive |
 
 ---
 
@@ -100,8 +106,9 @@ Colors follow [`wires.md`](wires.md). **HV is 600–1000 V silicone / EV**, not 
 | 15 ft | 14 AWG 600 V AC | green-yellow | AC-GND |
 | 5 ft | 18 AWG **300 VAC** (or 18 AWG AC as labeled) | brown | AC-L1-F7, AC-L1-RAC |
 | 5 ft | 18 AWG 300 VAC | blue | AC-L2-TAP |
-| 25 ft | 18 AWG TXL | red | 12-IGN1, 12-IGN2, 12-KEY, leftover 12 V |
-| 15 ft | 18 AWG TXL | black | 12-K3GND, 12-K4C, CHG-12− |
+| 25 ft | 18 AWG TXL | red | 12-IGN1, 12-IGN2, 12-KEY, 12-PI, 12-PISW, leftover 12 V |
+| 20 ft | 18 AWG TXL | black | 12-K3GND, 12-K4C, CHG-12−, 12-PIGND |
+| 15 ft | 18–20 AWG STP | Orion CAN1 colors | CAN-PI-H / CAN-PI-L dash tap |
 | 1 pack | 2/0 adhesive heatshrink | **red** | + ends of orange 2/0 |
 | 1 pack | 2/0 adhesive heatshrink | **black** | − ends of orange 2/0 |
 
@@ -125,7 +132,7 @@ HyPer K1 already supplies CAN (K1-13 / K1-2), precharge/key (K1-24), and coil (K
 | 4 | 18 AWG HV ring, **1/4″ or M6** | 18 AWG HV | Circuit_Breaker2 terminals (match breaker) |
 | 8 | 10 AWG ring, **5/16″–24** | 10 AWG GXL | K3 studs, MAXI 5006, battery posts |
 | 4 | 10 AWG ring, **#10-32** | 10 AWG GXL | Blue Sea Always_Hot / Switched / Battery− |
-| 8 | 18 AWG ring or spade, **#8-32** | 18 AWG | Blue Sea circuits |
+| 10 | 18 AWG ring or spade, **#8-32** | 18 AWG | Blue Sea circuits (incl. Dash/Pi) |
 | 6 | 18 AWG ring, **#10** chassis | 18 AWG TXL / HV | chassis GND |
 | 20 | 0.250″ QC (insulated), 14 AWG | 14 AWG AC | T92 pins 13/14/23/24 |
 | 20 | 0.250″ QC (insulated), 18 AWG | 18 AWG | T92 A1/A2, T9A, G9EJ, Cole Hersee coil |
@@ -176,7 +183,7 @@ Do **not** land a cable on the center M8 — that bolt only clamps the bar to th
 | Orion CWHMIO 18 AWG Main I/O | ships with this BMS |
 | HyPer 9 K1 AMPSEAL harness | ships with inverter |
 | CANdapter USB-B cable | ships with adapter (add bulkhead only if you want a dash port) |
-| Blue Sea circuits 1–4, 6 | unused on this sheet |
+| Blue Sea circuits 1, 3, unused 6 | unused on this sheet (Always_Hot circuit 4 is Dash/Pi) |
 | Orion fan pins 9 and 10 | no-connect |
 | Tesla cell taps on this schematic | separate Orion tap harness |
 
@@ -192,5 +199,6 @@ Do **not** land a cable on the center M8 — that bolt only clamps the bar to th
 - Precharge wire is unlabeled on the sheet; buy **18 AWG HV** red.
 - RAC02 taps: buy **18 AWG 300 VAC** (schematic also says 18AWG AC).
 - J1772 symbol reference is `J1773`.
+- SW5 **Instruments** is a dash SPST on Always_Hot **Dash/Pi**. Ready/Precharge is not gated. Pi 5 + Touch Display 2 10″ + PiCAN 3 run from the PiCAN **3 A SMPS**.
 - Circuit_Breaker3 is the second pole of the **32 A** charger DC breaker; Circuit_Breaker4 is the second pole of the **10 A** DCIS breaker.
 - TB1/TB3 (`Terminal_Block+`) and TB2 (`Terminal_Block−`): small studs are **#10-32**, not 1/4″. 2/0 still lands on **5/16″**.

@@ -679,7 +679,7 @@
 			(pin output line
 				(at 31.75 -24.13 180)
 				(length 2.54)
-				(name ""
+				(name "Dash/Pi"
 					(effects
 						(font
 							(size 1.27 1.27)

@@ -1,0 +1,7 @@
+[Match]
+Name=can0
+
+[CAN]
+BitRate=250000
+# IH-53 CAN1 is 250 kbps (Orion / TSM2500 / HyPer).
+# Do NOT use 500000 from the PiCAN Python examples.

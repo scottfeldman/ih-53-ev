@@ -1,0 +1,76 @@
+# CAN layouts for the IH-53 dash (everyone on Orion CAN1 @ 250 kbps).
+#
+# Orion: program these as custom CANBUS messages in the Orion utility
+#   (CANBUS Settings → Edit CANBUS Messages), CAN1, standard 11-bit IDs.
+#   Use big-endian byte order. For Pack SOC, set "Then Divide By" = 2 so
+#   the bus value is whole percent (dash scale=1). Or leave divide=1 and
+#   change soc_pct scale to 0.5 in this file.
+#
+# HyPer: program TPDOs in TAU SmartView. Do not add Node ID to the ID.
+#   Words are little-endian. Temps use SmartView's +40 °C offset.
+
+orion:
+  stale_timeout_ms: 2000
+  messages:
+    # Drive / charge gauges
+    - id: 0x350
+      rate_ms: 100
+      endian: be
+      fields:
+        - { name: soc_pct, byte: 0, type: u8, scale: 1, unit: "%" }
+        - { name: pack_v, byte: 1, type: u16, scale: 0.1, unit: V }
+        - { name: pack_a, byte: 3, type: i16, scale: 0.1, unit: A }
+
+    - id: 0x351
+      rate_ms: 100
+      endian: be
+      fields:
+        - { name: ccl, byte: 0, type: u16, scale: 1, unit: A }
+        - { name: dcl, byte: 2, type: u16, scale: 1, unit: A }
+        - { name: high_temp_c, byte: 4, type: i8, scale: 1, unit: "°C" }
+        - { name: low_temp_c, byte: 5, type: i8, scale: 1, unit: "°C" }
+        - { name: avg_temp_c, byte: 6, type: i8, scale: 1, unit: "°C" }
+
+    # Cell summary + health (min/max also refreshed from cell broadcast)
+    - id: 0x352
+      rate_ms: 500
+      endian: be
+      fields:
+        - { name: cell_min_v, byte: 0, type: u16, scale: 0.0001, unit: V }
+        - { name: cell_max_v, byte: 2, type: u16, scale: 0.0001, unit: V }
+        - { name: pack_cycles, byte: 4, type: u16, scale: 1 }
+        - { name: fault_count, byte: 6, type: u8, scale: 1 }
+
+  # Orion utility → CANBUS Settings → Enable Battery Cell Broadcast on CAN1.
+  # Default ID 0x36. Cycles all 30 taps (5 modules × 6). Bus load is fine at 250 kbps.
+  cell_broadcast:
+    id: 0x36
+    modules: 5
+    taps_per_module: 6
+    cell_count: 30
+
+hyper:
+  stale_timeout_ms: 1000
+  tpdos:
+    - id: 0x190
+      rate_ms: 50
+      fields:
+        - { name: motor_rpm, byte: 0, type: i16, scale: 1, unit: rpm }
+        - { name: throttle_pct, byte: 2, type: u8, scale: 1, unit: "%" }
+        - { name: fault_code, byte: 3, type: u8, scale: 1 }
+        - { name: fault_level, byte: 4, type: u8, scale: 1 }
+        - { name: inverter_temp_c, byte: 5, type: u8, scale: 1, add: -40, unit: "°C" }
+        - { name: motor_temp_c, byte: 6, type: u8, scale: 1, add: -40, unit: "°C" }
+
+    - id: 0x191
+      rate_ms: 100
+      fields:
+        - { name: dc_bus_v, byte: 0, type: i16, scale: 0.1, unit: V }
+        - { name: dc_bus_a, byte: 2, type: i16, scale: 0.1, unit: A }
+        - { name: system_flags, byte: 4, type: u16, scale: 1 }
+
+    - id: 0x192
+      rate_ms: 200
+      fields:
+        - { name: vehicle_speed_mph, byte: 0, type: i16, scale: 0.1, unit: mph }
+        - { name: key_switch_v, byte: 2, type: i16, scale: 0.01, unit: V }

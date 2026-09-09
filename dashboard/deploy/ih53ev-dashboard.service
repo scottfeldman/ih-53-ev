@@ -1,0 +1,23 @@
+[Unit]
+Description=IH-53 EV CAN dashboard
+Documentation=file:///opt/ih53ev/dashboard/README.md
+After=network-online.target sys-subsystem-net-devices-can0.device
+Wants=network-online.target
+# can0 is configured by systemd-networkd (can0.network) at 250000 bit/s.
+
+[Service]
+Type=simple
+User=ih53dash
+Group=ih53dash
+SupplementaryGroups=netdev
+WorkingDirectory=/opt/ih53ev/dashboard
+ExecStart=/opt/ih53ev/dashboard/ih53ev-dashboard --iface can0 --listen :10000 --canmap /opt/ih53ev/dashboard/canmap.yaml
+Restart=always
+RestartSec=2
+# Raw CAN sockets need net_raw / netdev; do not take can0 down on exit.
+AmbientCapabilities=CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_RAW
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

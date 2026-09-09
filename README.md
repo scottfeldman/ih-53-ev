@@ -2,6 +2,10 @@
 
 1953 International Harvester EV conversion
 
+### Dashboard
+
+Pi 5 + PiCAN 3 instrument panel (Go / Fiber / HTMX): see [`dashboard/README.md`](dashboard/README.md).
+
 ### References
 
 [https://www.orionbms.com/manuals/pdf/orionbms2_wiring_manual.pdf](https://www.orionbms.com/manuals/pdf/orionbms2_wiring_manual.pdf)

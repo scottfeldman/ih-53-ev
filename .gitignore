@@ -36,3 +36,6 @@ go.work.sum
 schematic/IH53EV-backups/
 *.lck
 *.FCBak
+
+# Built dashboard binary
+dashboard/ih53ev-dashboard
