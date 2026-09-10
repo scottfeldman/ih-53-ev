@@ -1,7 +1,7 @@
-# Build HV copper bus bars TB1/TB2/TB3 on a single SM40 standoff (center).
+# Build HV copper bus bars TB1/TB2/TB3 on an SM40-M10 standoff.
 # Run inside FreeCAD. Units: mm.
 # Schematic: 2x 5/16-18 (2/0) + 2x #10-32 (10/18 AWG HV).
-# SM40: H=40, face OD=40, waist=34, M8 inserts 11 mm both ends (BMC, typically red).
+# SM40: H=40, face OD=40, waist=34, M10 inserts 11 mm both ends (BMC SM-40-M10).
 
 import math
 import os
@@ -12,22 +12,25 @@ import Part
 OUT_DIR = "/Users/sfeldma/work/ih-53-ev/bus bars"
 DOC_NAME = "BusBars"
 
-# --- copper blank (C110 1/4 x 2 stock, 8" stick split in half = 4.00" / 101.6 mm) ---
-# Through-bolt heads under the bar must miss the SM40 (40 mm OD). 4" gives ~36 mm
-# c-c from 5/16 to M8, enough for a 5/16 hex head + SAE washer.
-BAR_L = 101.6
-BAR_W = 50.8
+# --- copper blank from one C110 1/4 x 4 x 12 plate ---
+# 2.5" wide: 2/0 palms 16 mm from each long edge (31.5 mm c-c) so traction
+# cables can come in at an angle. 85 mm long: SM40 sits toward the #10 end
+# because 5/16 USS washers need more face clearance than #10 washers.
+# #10 holes are 10 mm from the short edge (washer OD 12.7).
+BAR_L = 85.0
+BAR_W = 63.5
 BAR_T = 6.35
 
+# 5/16 (2/0) on the X1 end, #10-32 on the X2 end.
 STUD_X1 = 16.0
-STUD_X2 = 85.6
-STUD_Y_516 = 16.0
-STUD_Y_10 = 34.8
+STUD_X2 = 75.0
+STUD_Y1 = 16.0
+STUD_Y2 = BAR_W - 16.0
 
-# SM40 under the geometric center of the bar; M8 through-hole in copper
-MOUNT_X = BAR_L / 2.0
+# SM40 offset toward the #10 end; M10 through-hole in copper
+MOUNT_X = 48.0
 MOUNT_Y = BAR_W / 2.0
-HOLE_M8 = 8.5
+HOLE_M10 = 11.0
 
 DIA_516 = 7.938
 DIA_10 = 4.826
@@ -54,12 +57,12 @@ SM40_H = 40.0
 SM40_OD = 40.0
 SM40_WAIST = 34.0
 SM40_INSERT_DEPTH = 11.0
-SM40_INSERT_OD = 10.0
-M8_DIA = 8.0
-M8_HEAD_AF = 13.0
-M8_HEAD_H = 5.5
-M8_WASH_OD = 16.0
-M8_WASH_T = 1.6
+SM40_INSERT_OD = 13.0
+M10_DIA = 10.0
+M10_HEAD_AF = 17.0
+M10_HEAD_H = 6.4
+M10_WASH_OD = 20.0
+M10_WASH_T = 2.0
 
 PITCH_Y = BAR_W + 50.0
 
@@ -68,6 +71,7 @@ COLOR_SS = (0.78, 0.78, 0.80)
 COLOR_ZINC = (0.72, 0.74, 0.70)
 COLOR_SM40 = (0.78, 0.16, 0.12)
 COLOR_HEAD_BOT = (0.95, 0.72, 0.12)
+COLOR_LUG = (0.25, 0.25, 0.28)
 
 
 def add_shape(doc, name, shape, color, transparency=0):
@@ -105,14 +109,34 @@ def place_xy(shape, x, y, z=0.0):
     return s
 
 
+def ring_lug(x, y, z, dir_x, tongue_w, tongue_back, barrel_r, barrel_l):
+    """Keep-out: palm on the bar, barrel hanging off the end along X (dir_x +1 or -1)."""
+    tip_x = 0.0 if dir_x < 0 else BAR_L
+    if dir_x < 0:
+        palm_x0 = min(tip_x, x + tongue_back)
+        palm_x1 = max(tip_x, x + tongue_back)
+    else:
+        palm_x0 = min(tip_x, x - tongue_back)
+        palm_x1 = max(tip_x, x - tongue_back)
+    palm = Part.makeBox(
+        palm_x1 - palm_x0,
+        tongue_w,
+        3.5,
+        App.Vector(palm_x0, y - tongue_w / 2.0, z),
+    )
+    start = App.Vector(tip_x, y, z + barrel_r)
+    barrel = Part.makeCylinder(barrel_r, barrel_l, start, App.Vector(dir_x, 0, 0))
+    return palm.fuse(barrel)
+
+
 def copper_bar():
     bar = Part.makeBox(BAR_L, BAR_W, BAR_T)
     holes = [
-        (STUD_X1, STUD_Y_516, HOLE_516),
-        (STUD_X2, STUD_Y_516, HOLE_516),
-        (STUD_X1, STUD_Y_10, HOLE_10),
-        (STUD_X2, STUD_Y_10, HOLE_10),
-        (MOUNT_X, MOUNT_Y, HOLE_M8),
+        (STUD_X1, STUD_Y1, HOLE_516),
+        (STUD_X1, STUD_Y2, HOLE_516),
+        (STUD_X2, STUD_Y1, HOLE_10),
+        (STUD_X2, STUD_Y2, HOLE_10),
+        (MOUNT_X, MOUNT_Y, HOLE_M10),
     ]
     for x, y, d in holes:
         bar = bar.cut(Part.makeCylinder(d / 2.0, BAR_T + 2.0, App.Vector(x, y, -1.0)))
@@ -161,7 +185,7 @@ def sm40_body():
     ]
     face = Part.Face(Part.makePolygon(pts))
     body = face.revolve(App.Vector(0, 0, 0), App.Vector(0, 0, 1), 360)
-    # M8 tapped pockets (inserts sit in these)
+    # M10 tapped pockets (inserts sit in these)
     r_pocket = SM40_INSERT_OD / 2.0 + 0.15
     body = body.cut(Part.makeCylinder(r_pocket, SM40_INSERT_DEPTH + 0.2, App.Vector(0, 0, -0.1)))
     body = body.cut(
@@ -175,9 +199,9 @@ def sm40_body():
 
 
 def sm40_inserts():
-    """Galvanized steel M8 inserts, 11 mm deep, both faces."""
+    """M10 inserts, 11 mm deep, both faces."""
     r_o = SM40_INSERT_OD / 2.0
-    r_i = 6.8 / 2.0  # M8 tap drill
+    r_i = 8.5 / 2.0  # M10x1.5 tap drill
     def insert_at(z):
         tube = Part.makeCylinder(r_o, SM40_INSERT_DEPTH, App.Vector(0, 0, z))
         return tube.cut(
@@ -187,21 +211,21 @@ def sm40_inserts():
     return insert_at(0.0), insert_at(SM40_H - SM40_INSERT_DEPTH)
 
 
-def m8_bolt(z_head_bottom, head_up=True):
-    """Hex-head M8. Shaft points down if head_up else up from z_head_bottom."""
-    head = hex_prism(M8_HEAD_AF, M8_HEAD_H)
+def m10_bolt(z_head_bottom, head_up=True):
+    """Hex-head M10. Shaft points down if head_up else up from z_head_bottom."""
+    head = hex_prism(M10_HEAD_AF, M10_HEAD_H)
     if head_up:
         head.translate(App.Vector(0, 0, z_head_bottom))
-        shaft_len = BAR_T + M8_WASH_T + SM40_INSERT_DEPTH - 1.0
+        shaft_len = BAR_T + M10_WASH_T + SM40_INSERT_DEPTH - 1.0
         shaft = Part.makeCylinder(
-            M8_DIA / 2.0,
+            M10_DIA / 2.0,
             shaft_len,
             App.Vector(0, 0, z_head_bottom - shaft_len + 0.2),
         )
     else:
-        head.translate(App.Vector(0, 0, z_head_bottom - M8_HEAD_H))
+        head.translate(App.Vector(0, 0, z_head_bottom - M10_HEAD_H))
         shaft_len = SM40_INSERT_DEPTH + 2.0
-        shaft = Part.makeCylinder(M8_DIA / 2.0, shaft_len, App.Vector(0, 0, z_head_bottom - 0.2))
+        shaft = Part.makeCylinder(M10_DIA / 2.0, shaft_len, App.Vector(0, 0, z_head_bottom - 0.2))
     return head.fuse(shaft)
 
 
@@ -224,10 +248,10 @@ def build_one(doc, prefix, origin):
     hardware = []
     underside = []
     for x, y, dia, h, wod, wid, wt, af, nh, hh in (
-        (STUD_X1, STUD_Y_516, DIA_516, STUD_H_516, WASH_OD_516, WASH_ID_516, WASH_T_516, NUT_AF_516, NUT_H_516, HEAD_H_516),
-        (STUD_X2, STUD_Y_516, DIA_516, STUD_H_516, WASH_OD_516, WASH_ID_516, WASH_T_516, NUT_AF_516, NUT_H_516, HEAD_H_516),
-        (STUD_X1, STUD_Y_10, DIA_10, STUD_H_10, WASH_OD_10, WASH_ID_10, WASH_T_10, NUT_AF_10, NUT_H_10, HEAD_H_10),
-        (STUD_X2, STUD_Y_10, DIA_10, STUD_H_10, WASH_OD_10, WASH_ID_10, WASH_T_10, NUT_AF_10, NUT_H_10, HEAD_H_10),
+        (STUD_X1, STUD_Y1, DIA_516, STUD_H_516, WASH_OD_516, WASH_ID_516, WASH_T_516, NUT_AF_516, NUT_H_516, HEAD_H_516),
+        (STUD_X1, STUD_Y2, DIA_516, STUD_H_516, WASH_OD_516, WASH_ID_516, WASH_T_516, NUT_AF_516, NUT_H_516, HEAD_H_516),
+        (STUD_X2, STUD_Y1, DIA_10, STUD_H_10, WASH_OD_10, WASH_ID_10, WASH_T_10, NUT_AF_10, NUT_H_10, HEAD_H_10),
+        (STUD_X2, STUD_Y2, DIA_10, STUD_H_10, WASH_OD_10, WASH_ID_10, WASH_T_10, NUT_AF_10, NUT_H_10, HEAD_H_10),
     ):
         st, w, n, w_bot, head = stud_stack(x, y, dia, h, wod, wid, wt, af, nh, hh, bar_z)
         for sh in (st, w, n, w_bot, head):
@@ -237,12 +261,20 @@ def build_one(doc, prefix, origin):
 
     body, ins_bot, ins_top = sm40_at(mx, my, oz)
 
-    wash = place_xy(washer(M8_WASH_OD, HOLE_M8, M8_WASH_T), mx, my, oz + bar_z + BAR_T)
-    top_bolt = m8_bolt(oz + bar_z + BAR_T + M8_WASH_T, head_up=True)
+    wash = place_xy(washer(M10_WASH_OD, HOLE_M10, M10_WASH_T), mx, my, oz + bar_z + BAR_T)
+    top_bolt = m10_bolt(oz + bar_z + BAR_T + M10_WASH_T, head_up=True)
     top_bolt.translate(App.Vector(mx, my, 0))
-    bot_bolt = m8_bolt(oz, head_up=False)
+    bot_bolt = m10_bolt(oz, head_up=False)
     bot_bolt.translate(App.Vector(mx, my, 0))
     hardware.extend((wash, top_bolt, bot_bolt))
+
+    lug_z = oz + bar_z + BAR_T
+    lugs = [
+        ring_lug(ox + STUD_X1, oy + STUD_Y1, lug_z, -1, 22.0, 10.0, 8.0, 32.0),
+        ring_lug(ox + STUD_X1, oy + STUD_Y2, lug_z, -1, 22.0, 10.0, 8.0, 32.0),
+        ring_lug(ox + STUD_X2, oy + STUD_Y1, lug_z, 1, 11.0, 7.0, 4.5, 20.0),
+        ring_lug(ox + STUD_X2, oy + STUD_Y2, lug_z, 1, 11.0, 7.0, 4.5, 20.0),
+    ]
 
     grp = doc.addObject("App::DocumentObjectGroup", prefix)
     grp.Label = prefix
@@ -252,6 +284,7 @@ def build_one(doc, prefix, origin):
         add_shape(doc, prefix + "_StudHeadsBottom", Part.makeCompound(underside), COLOR_HEAD_BOT),
         add_shape(doc, prefix + "_SM40", body, COLOR_SM40),
         add_shape(doc, prefix + "_Inserts", ins_bot.fuse(ins_top), COLOR_ZINC),
+        add_shape(doc, prefix + "_LugKeepout", Part.makeCompound(lugs), COLOR_LUG, transparency=50),
     ]
     for o in objs:
         grp.addObject(o)
@@ -273,20 +306,20 @@ def fill_spreadsheet(doc):
     ss = doc.addObject("Spreadsheet::Sheet", "Dimensions")
     rows = [
         ("param", "mm", "note"),
-        ("bar_L", BAR_L, "C110 length"),
-        ("bar_W", BAR_W, "2 in stock"),
-        ("bar_T", BAR_T, "1/4 in stock"),
-        ("stud_x1", STUD_X1, "column A"),
-        ("stud_x2", STUD_X2, "column B, 69.6 mm c-c"),
-        ("stud_y_5_16", STUD_Y_516, "2/0 row, 16 mm from edge"),
-        ("stud_y_10", STUD_Y_10, "#10-32 row, 16 mm from edge"),
-        ("mount_x", MOUNT_X, "SM40 / M8 hole center"),
-        ("mount_y", MOUNT_Y, "SM40 / M8 hole center"),
-        ("hole_M8", HOLE_M8, "clearance through bar into SM40"),
+        ("bar_L", BAR_L, "3.35 in, SM40 offset to #10 end"),
+        ("bar_W", BAR_W, "2.5 in for angled 2/0"),
+        ("bar_T", BAR_T, "1/4 in plate"),
+        ("stud_x1", STUD_X1, "5/16 2/0 column"),
+        ("stud_x2", STUD_X2, "#10-32, 10 mm from end"),
+        ("stud_y1", STUD_Y1, "row A, 16 mm from edge"),
+        ("stud_y2", STUD_Y2, "row B, 16 mm from edge"),
+        ("mount_x", MOUNT_X, "SM40 / M10, toward #10"),
+        ("mount_y", MOUNT_Y, "SM40 / M10 hole center"),
+        ("hole_M10", HOLE_M10, "clearance through bar into SM40"),
         ("SM40_H", SM40_H, "catalog height"),
         ("SM40_OD", SM40_OD, "face diameter"),
         ("SM40_waist", SM40_WAIST, "socket / waist"),
-        ("SM40_insert", "M8 x 11", "both ends"),
+        ("SM40_insert", "M10 x 11", "both ends"),
         ("creepage_air_gap", 50.0, "between adjacent bars"),
         ("section_mm2", round(BAR_W * BAR_T, 1), "copper cross section"),
     ]
@@ -322,8 +355,11 @@ def export_steps(bar_shape, sm40_shape, assembly_shape):
 
 
 def main():
+    target_path = os.path.abspath(os.path.join(OUT_DIR, "bus bars.FCStd"))
     for d in list(App.listDocuments().keys()):
-        if d == DOC_NAME or App.getDocument(d).Label == DOC_NAME:
+        existing = App.getDocument(d)
+        existing_path = os.path.abspath(existing.FileName) if existing.FileName else ""
+        if d == DOC_NAME or existing.Label in (DOC_NAME, "bus bars") or existing_path == target_path:
             App.closeDocument(d)
 
     doc = App.newDocument(DOC_NAME)
@@ -352,6 +388,7 @@ def main():
         for o in doc.Objects
         if o.TypeId == "Part::Feature"
         and not o.Name.startswith("Master")
+        and "LugKeepout" not in o.Name
         and hasattr(o, "Shape")
         and not o.Shape.isNull()
         and o.ViewObject is not None
@@ -363,12 +400,13 @@ def main():
     path = os.path.join(OUT_DIR, "bus bars.FCStd")
     doc.saveAs(path)
     print("Saved", path)
-    dx = abs(STUD_X1 - MOUNT_X)
-    dy516 = abs(STUD_Y_516 - MOUNT_Y)
-    dy10 = abs(STUD_Y_10 - MOUNT_Y)
+    dx516 = abs(STUD_X1 - MOUNT_X)
+    dx10 = abs(STUD_X2 - MOUNT_X)
+    dy = abs(STUD_Y1 - MOUNT_Y)
     print("Bar", BAR_L, "x", BAR_W, "x", BAR_T, "mm; SM40 at", MOUNT_X, MOUNT_Y)
-    print("5/16 c-c", abs(STUD_X2 - STUD_X1), "  5/16 to #10", abs(STUD_Y_10 - STUD_Y_516))
-    print("5/16 to M8", round((dx**2 + dy516**2) ** 0.5, 1), "  #10 to M8", round((dx**2 + dy10**2) ** 0.5, 1))
+    print("5/16 c-c (rows)", round(abs(STUD_Y2 - STUD_Y1), 1), "  5/16 to #10 (ends)", abs(STUD_X2 - STUD_X1))
+    print("5/16 to M10", round((dx516**2 + dy**2) ** 0.5, 1), "  #10 to M10", round((dx10**2 + dy**2) ** 0.5, 1))
+    print("From 4x12 plate: 2.5 x 3.35 in blanks; 2/0 palm gap", round(abs(STUD_Y2 - STUD_Y1) - 22.0, 1), "mm")
     return doc
 
 

@@ -144,21 +144,21 @@ HyPer K1 already supplies CAN (K1-13 / K1-2), precharge/key (K1-24), and coil (K
 
 ## 6b. Buy / make — HV copper bus bars
 
-Three identical C110 bars. TB1 and TB3 are pack **+**; TB2 is pack **−**. 500 A pack fuse (A25X500-4) sets the section: 1/4″ × 2″ is ~323 mm², enough for a short open 500 A run. Split **8″** sticks in half (**4.00″ / 101.6 mm**); two sticks make three bars plus a spare. Through-bolt 5/16″ heads under the bar clear the SM40 (~36 mm c-c).
+Three identical C110 bars from one **1/4″ × 4″ × 12″** plate. TB1 and TB3 are pack **+**; TB2 is pack **−**. Blank is **2.50″ × 85 mm (3.35″)**. 2.5″ width gives two 2/0 palms 31.5 mm c-c so traction cables can approach at an angle. Length is shorter than 4″ because the SM40 sits toward the #10 end and the #10 holes are only 10 mm from that edge (5/16 washers still clear the 40 mm face, ~36 mm c-c). Section is ~403 mm².
 
 | Qty | Item | MPN / spec | Used for |
 | --- | --- | --- | --- |
-| 3 | Copper bar blank | C110, **1/4″ × 2″**, cut **101.6 mm** (8″ stick split in half; buy 2 sticks) | TB1, TB2, TB3 |
+| 3 | Copper bar blank | C110, **1/4″ × 2-1/2″ × 3.35″** (85 mm; from one 1/4″ × 4″ × 12″ plate) | TB1, TB2, TB3 |
 | 6 | 5/16″-18 bus stud, SS or silicon bronze, ~1.25″ above bar | brazed, press-in, or through-bolt + jam nut | 2/0 landings |
 | 6 | #10-32 bus stud, SS or silicon bronze, ~1.0″ above bar | same | 10/18 AWG HV landings |
 | 12 | 5/16″-18 hex nut + SAE flat washer + Belleville | SS | 2/0 clamp (2 nuts/stud if through-bolt) |
 | 12 | #10-32 hex nut + #10 washer + Belleville | SS | small HV clamp |
-| 3 | **SM40** busbar standoff | BMC, 40 mm tall, 40 mm face / 34 mm waist, **M8** inserts 11 mm both ends, 1000 VAC / 1500 VDC | 1 per bar, under the center; **not** battery-box mounts |
-| 6 | M8 × 20 mm hex bolt + M8 flat washer | SS or zinc | 1 through bar into SM40 top; 1 from chassis into SM40 bottom |
+| 3 | **SM40-M10** busbar standoff | BMC, 40 mm tall, 40 mm face / 34 mm waist, **M10** inserts 11 mm both ends, 1000 VAC / 1500 VDC | 1 per bar, under the center; **not** battery-box mounts |
+| 6 | M10 × 20 mm hex bolt + M10 flat washer | SS or zinc | 1 through bar into SM40 top; 1 from chassis into SM40 bottom |
 
 Do **not** substitute 1/4″ lugs on the small studs — #10-32 is 0.190″, not 0.250″.
 
-Do **not** land a cable on the center M8 — that bolt only clamps the bar to the SM40. Torque the M8 to the insulator rating (~13 N·m), not lug torque.
+Do **not** land a cable on the center M10 — that bolt only clamps the bar to the SM40. Torque the M10 to the insulator rating (typically ~15 N·m), not lug torque.
 
 ---
 

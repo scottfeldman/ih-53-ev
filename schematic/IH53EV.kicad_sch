@@ -8515,57 +8515,6 @@
 			(embedded_fonts no)
 		)
 	)
-	(wire
-		(pts
-			(xy 275.59 218.44) (xy 290.83 218.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-			(color 0 0 255 1)
-		)
-		(uuid "d905bc42-205e-421e-adf7-67f61aeca974")
-	)
-	(wire
-		(pts
-			(xy 187.96 125.73) (xy 205.74 125.73)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b581e800-9d75-48b8-9761-40d5fe58b50a")
-	)
-	(wire
-		(pts
-			(xy 215.9 125.73) (xy 233.68 125.73)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "54811103-a0a0-48ac-b362-a77c270ee046")
-	)
-	(text "to PiCAN 3 +12V\n(SMPS feeds Pi + TD2)"
-		(exclude_from_sim no)
-		(at 248.92 125.73 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "f8b91825-a938-4f5d-b431-5dfab359aecc")
-	)
-	(text "18AWG TXL"
-		(exclude_from_sim no)
-		(at 196.85 122.0 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "3a97870f-77b2-4762-9031-73457270033a")
-	)
 	(text "18AWG TXL"
 		(exclude_from_sim no)
 		(at 215.392 215.138 0)
@@ -8782,6 +8731,16 @@
 			)
 		)
 		(uuid "3a1927e1-6674-482f-ad4f-641d08d384b7")
+	)
+	(text "18AWG TXL"
+		(exclude_from_sim no)
+		(at 196.85 122 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "3a97870f-77b2-4762-9031-73457270033a")
 	)
 	(text "Vehicle Front"
 		(exclude_from_sim no)
@@ -9189,6 +9148,16 @@
 			)
 		)
 		(uuid "f4e775ce-097f-4b6b-9f10-0a99f97639d0")
+	)
+	(text "to PiCAN 3 +12V\n(SMPS feeds Pi + TD2)"
+		(exclude_from_sim no)
+		(at 248.92 125.73 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "f8b91825-a938-4f5d-b431-5dfab359aecc")
 	)
 	(text "18AWG TXL"
 		(exclude_from_sim no)
@@ -10069,6 +10038,16 @@
 			(color 0 194 0 1)
 		)
 		(uuid "544af126-f028-452a-a935-1332a18d1bdc")
+	)
+	(wire
+		(pts
+			(xy 215.9 125.73) (xy 233.68 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "54811103-a0a0-48ac-b362-a77c270ee046")
 	)
 	(polyline
 		(pts
@@ -11159,6 +11138,16 @@
 	)
 	(wire
 		(pts
+			(xy 187.96 125.73) (xy 205.74 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b581e800-9d75-48b8-9761-40d5fe58b50a")
+	)
+	(wire
+		(pts
 			(xy 483.87 311.15) (xy 476.25 311.15)
 		)
 		(stroke
@@ -11465,6 +11454,17 @@
 			(color 0 194 0 1)
 		)
 		(uuid "d833769a-130d-4f07-bfe4-0f2388978108")
+	)
+	(wire
+		(pts
+			(xy 275.59 218.44) (xy 290.83 218.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+			(color 0 0 255 1)
+		)
+		(uuid "d905bc42-205e-421e-adf7-67f61aeca974")
 	)
 	(wire
 		(pts
@@ -12719,86 +12719,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Switch:SW_SPST")
-		(at 210.82 125.73 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "4424ae5c-f5f4-45f5-b202-ae0969a88e1d")
-		(property "Reference" "SW5"
-			(at 210.82 118.11 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Instruments"
-			(at 210.82 120.65 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 210.82 125.73 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 210.82 125.73 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Single Pole Single Throw (SPST) switch"
-			(at 210.82 125.73 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "04583879-3e46-4f35-afdb-93b5e9370e3d")
-		)
-		(pin "2"
-			(uuid "685e7941-b1d7-451f-9fb5-419c4345f5c8")
-		)
-		(instances
-			(project "IH53EV"
-				(path "/20bcdb30-6107-4dbd-a268-7abc52ed82ed"
-					(reference "SW5")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:Fuse")
 		(at 90.17 105.41 180)
 		(unit 1)
@@ -13384,6 +13304,86 @@
 			(project "IH53EV"
 				(path "/20bcdb30-6107-4dbd-a268-7abc52ed82ed"
 					(reference "#PWR02")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Switch:SW_SPST")
+		(at 210.82 125.73 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "4424ae5c-f5f4-45f5-b202-ae0969a88e1d")
+		(property "Reference" "SW5"
+			(at 210.82 118.11 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Instruments"
+			(at 210.82 120.65 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 210.82 125.73 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 210.82 125.73 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Single Pole Single Throw (SPST) switch"
+			(at 210.82 125.73 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "04583879-3e46-4f35-afdb-93b5e9370e3d")
+		)
+		(pin "2"
+			(uuid "685e7941-b1d7-451f-9fb5-419c4345f5c8")
+		)
+		(instances
+			(project "IH53EV"
+				(path "/20bcdb30-6107-4dbd-a268-7abc52ed82ed"
+					(reference "SW5")
 					(unit 1)
 				)
 			)

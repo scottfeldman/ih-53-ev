@@ -125,7 +125,7 @@ Same copper blank for all three; landings:
 | TB2 | pack − | HV-01 (BT2 −) | HV-10 (SB350 −) | CH-DC−2 (CB3) | DC-IN−2 (10 A breaker) |
 | TB3 | pack + (inverter / G1) | HV-11 (SB350 left +) | HV-14 (G1 A1+) | PC-01 (precharge) | unused |
 
-Physical part: C110 copper 1/4″ × 2″ × 101.6 mm (8″ stick split in half). 5/16″ through-bolts (2/0) and #10-32 (10/18 AWG HV) at the four corners; **SM40** under the center (~36 mm to each stud — underside 5/16″ heads clear the insulator). M8 through the copper into the top insert; M8 from chassis into the bottom. Not the battery-box brackets. See FreeCAD `bus bars/bus bars.FCStd`.
+Physical part: C110 copper **1/4″ × 2-1/2″ × 3.35″** (63.5 × 85 × 6.35 mm), from one 1/4″ × 4″ × 12″ plate. Two **5/16″** through-bolts (2/0) on one end, two **#10-32** (10/18 AWG HV) on the other (10 mm from that edge); **SM40-M10** offset toward the #10 end (~36 mm to 5/16″, ~31 mm to #10 — underside 5/16″ heads clear the insulator). M10 through the copper into the top insert; M10 from chassis into the bottom. Not the battery-box brackets. See FreeCAD `bus bars/bus bars.FCStd`.
 
 Cell taps on BT2–BT6 are **not** wired on this sheet. Orion tap harness is 22 AWG to TE 1318389-1 (orange / red / yellow groups, black grounds). Schematic notes **internally termination** at the modules.
 
