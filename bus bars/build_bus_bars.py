@@ -1,6 +1,6 @@
 # Build HV copper bus bars TB1/TB2/TB3 on an SM40-M10 standoff.
 # Run inside FreeCAD. Units: mm.
-# Schematic: 2x 5/16-18 (2/0) + 2x #10-32 (10/18 AWG HV).
+# Schematic: 2x 5/16-18 (2/0) + 2x 1/4-20 (10/18 AWG HV).
 # SM40: H=40, face OD=40, waist=34, M10 inserts 11 mm both ends (BMC SM-40-M10).
 
 import math
@@ -14,43 +14,43 @@ DOC_NAME = "BusBars"
 
 # --- copper blank from one C110 1/4 x 4 x 12 plate ---
 # 2.5" wide: 2/0 palms 16 mm from each long edge (31.5 mm c-c) so traction
-# cables can come in at an angle. 85 mm long: SM40 sits toward the #10 end
-# because 5/16 USS washers need more face clearance than #10 washers.
-# #10 holes are 10 mm from the short edge (washer OD 12.7).
-BAR_L = 85.0
+# cables can come in at an angle. 90 mm long: SM40 sits toward the 1/4-20 end
+# because 5/16 USS washers need more face clearance than 1/4 USS washers.
+# 1/4-20 holes are 12 mm from the short edge (USS washer OD 18.6).
+BAR_L = 90.0
 BAR_W = 63.5
 BAR_T = 6.35
 
-# 5/16 (2/0) on the X1 end, #10-32 on the X2 end.
+# 5/16 (2/0) on the X1 end, 1/4-20 on the X2 end.
 STUD_X1 = 16.0
-STUD_X2 = 75.0
+STUD_X2 = 78.0
 STUD_Y1 = 16.0
 STUD_Y2 = BAR_W - 16.0
 
-# SM40 offset toward the #10 end; M10 through-hole in copper
+# SM40 offset toward the 1/4-20 end; M10 through-hole in copper
 MOUNT_X = 48.0
 MOUNT_Y = BAR_W / 2.0
 HOLE_M10 = 11.0
 
 DIA_516 = 7.938
-DIA_10 = 4.826
+DIA_14 = 6.35
 HOLE_516 = 8.2
-HOLE_10 = 5.0
+HOLE_14 = 6.8
 STUD_H_516 = 22.0
-STUD_H_10 = 16.0
+STUD_H_14 = 18.0
 
 NUT_AF_516 = 12.7
 NUT_H_516 = 7.1
-NUT_AF_10 = 9.53
-NUT_H_10 = 3.18
+NUT_AF_14 = 11.11
+NUT_H_14 = 5.6
 HEAD_H_516 = 5.2
-HEAD_H_10 = 3.2
+HEAD_H_14 = 4.0
 WASH_OD_516 = 22.2
 WASH_ID_516 = 8.4
 WASH_T_516 = 2.0
-WASH_OD_10 = 12.7
-WASH_ID_10 = 5.0
-WASH_T_10 = 1.2
+WASH_OD_14 = 18.6
+WASH_ID_14 = 7.1
+WASH_T_14 = 1.6
 
 # --- SM40 catalog ---
 SM40_H = 40.0
@@ -134,8 +134,8 @@ def copper_bar():
     holes = [
         (STUD_X1, STUD_Y1, HOLE_516),
         (STUD_X1, STUD_Y2, HOLE_516),
-        (STUD_X2, STUD_Y1, HOLE_10),
-        (STUD_X2, STUD_Y2, HOLE_10),
+        (STUD_X2, STUD_Y1, HOLE_14),
+        (STUD_X2, STUD_Y2, HOLE_14),
         (MOUNT_X, MOUNT_Y, HOLE_M10),
     ]
     for x, y, d in holes:
@@ -250,8 +250,8 @@ def build_one(doc, prefix, origin):
     for x, y, dia, h, wod, wid, wt, af, nh, hh in (
         (STUD_X1, STUD_Y1, DIA_516, STUD_H_516, WASH_OD_516, WASH_ID_516, WASH_T_516, NUT_AF_516, NUT_H_516, HEAD_H_516),
         (STUD_X1, STUD_Y2, DIA_516, STUD_H_516, WASH_OD_516, WASH_ID_516, WASH_T_516, NUT_AF_516, NUT_H_516, HEAD_H_516),
-        (STUD_X2, STUD_Y1, DIA_10, STUD_H_10, WASH_OD_10, WASH_ID_10, WASH_T_10, NUT_AF_10, NUT_H_10, HEAD_H_10),
-        (STUD_X2, STUD_Y2, DIA_10, STUD_H_10, WASH_OD_10, WASH_ID_10, WASH_T_10, NUT_AF_10, NUT_H_10, HEAD_H_10),
+        (STUD_X2, STUD_Y1, DIA_14, STUD_H_14, WASH_OD_14, WASH_ID_14, WASH_T_14, NUT_AF_14, NUT_H_14, HEAD_H_14),
+        (STUD_X2, STUD_Y2, DIA_14, STUD_H_14, WASH_OD_14, WASH_ID_14, WASH_T_14, NUT_AF_14, NUT_H_14, HEAD_H_14),
     ):
         st, w, n, w_bot, head = stud_stack(x, y, dia, h, wod, wid, wt, af, nh, hh, bar_z)
         for sh in (st, w, n, w_bot, head):
@@ -272,8 +272,8 @@ def build_one(doc, prefix, origin):
     lugs = [
         ring_lug(ox + STUD_X1, oy + STUD_Y1, lug_z, -1, 22.0, 10.0, 8.0, 32.0),
         ring_lug(ox + STUD_X1, oy + STUD_Y2, lug_z, -1, 22.0, 10.0, 8.0, 32.0),
-        ring_lug(ox + STUD_X2, oy + STUD_Y1, lug_z, 1, 11.0, 7.0, 4.5, 20.0),
-        ring_lug(ox + STUD_X2, oy + STUD_Y2, lug_z, 1, 11.0, 7.0, 4.5, 20.0),
+        ring_lug(ox + STUD_X2, oy + STUD_Y1, lug_z, 1, 12.0, 8.0, 4.5, 20.0),
+        ring_lug(ox + STUD_X2, oy + STUD_Y2, lug_z, 1, 12.0, 8.0, 4.5, 20.0),
     ]
 
     grp = doc.addObject("App::DocumentObjectGroup", prefix)
@@ -306,14 +306,14 @@ def fill_spreadsheet(doc):
     ss = doc.addObject("Spreadsheet::Sheet", "Dimensions")
     rows = [
         ("param", "mm", "note"),
-        ("bar_L", BAR_L, "3.35 in, SM40 offset to #10 end"),
+        ("bar_L", BAR_L, "3.54 in, SM40 offset to 1/4-20 end"),
         ("bar_W", BAR_W, "2.5 in for angled 2/0"),
         ("bar_T", BAR_T, "1/4 in plate"),
         ("stud_x1", STUD_X1, "5/16 2/0 column"),
-        ("stud_x2", STUD_X2, "#10-32, 10 mm from end"),
+        ("stud_x2", STUD_X2, "1/4-20, 12 mm from end"),
         ("stud_y1", STUD_Y1, "row A, 16 mm from edge"),
         ("stud_y2", STUD_Y2, "row B, 16 mm from edge"),
-        ("mount_x", MOUNT_X, "SM40 / M10, toward #10"),
+        ("mount_x", MOUNT_X, "SM40 / M10, toward 1/4-20"),
         ("mount_y", MOUNT_Y, "SM40 / M10 hole center"),
         ("hole_M10", HOLE_M10, "clearance through bar into SM40"),
         ("SM40_H", SM40_H, "catalog height"),
@@ -404,9 +404,9 @@ def main():
     dx10 = abs(STUD_X2 - MOUNT_X)
     dy = abs(STUD_Y1 - MOUNT_Y)
     print("Bar", BAR_L, "x", BAR_W, "x", BAR_T, "mm; SM40 at", MOUNT_X, MOUNT_Y)
-    print("5/16 c-c (rows)", round(abs(STUD_Y2 - STUD_Y1), 1), "  5/16 to #10 (ends)", abs(STUD_X2 - STUD_X1))
-    print("5/16 to M10", round((dx516**2 + dy**2) ** 0.5, 1), "  #10 to M10", round((dx10**2 + dy**2) ** 0.5, 1))
-    print("From 4x12 plate: 2.5 x 3.35 in blanks; 2/0 palm gap", round(abs(STUD_Y2 - STUD_Y1) - 22.0, 1), "mm")
+    print("5/16 c-c (rows)", round(abs(STUD_Y2 - STUD_Y1), 1), "  5/16 to 1/4 (ends)", abs(STUD_X2 - STUD_X1))
+    print("5/16 to M10", round((dx516**2 + dy**2) ** 0.5, 1), "  1/4 to M10", round((dx10**2 + dy**2) ** 0.5, 1))
+    print("From 4x12 plate: 2.5 x 3.54 in blanks; 2/0 palm gap", round(abs(STUD_Y2 - STUD_Y1) - 22.0, 1), "mm")
     return doc
 
 

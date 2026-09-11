@@ -126,8 +126,8 @@ HyPer K1 already supplies CAN (K1-13 / K1-2), precharge/key (K1-24), and coil (K
 | --- | --- | --- | --- |
 | 12 | 2/0 ring, **5/16″** | 2/0 DLO | TB1/2/3 5/16″, module lugs, F4, SW1, SB350 |
 | 4 | 2/0 ring, **M8** | 2/0 DLO | Gigavac A1+ / A2−, HyPer B+ / B− if M8 |
-| 6 | 10 AWG HV ring, **#10-32** | 10 AWG HV | TB1 / TB2 #10 studs (4 used + spares) |
-| 2 | 18 AWG HV ring, **#10-32** | 18 AWG HV | TB3 #10 precharge (+ spare) |
+| 6 | 10 AWG HV ring, **1/4″** | 10 AWG HV | TB1 / TB2 1/4-20 studs (4 used + spares) |
+| 2 | 18 AWG HV ring, **1/4″** | 18 AWG HV | TB3 1/4-20 precharge (+ spare) |
 | 12 | 10 AWG HV ring, **1/4″ or M6** | 10 AWG HV | charger DC and DCIS breaker terminals (match breaker) |
 | 4 | 18 AWG HV ring, **1/4″ or M6** | 18 AWG HV | Circuit_Breaker2 terminals (match breaker) |
 | 8 | 10 AWG ring, **5/16″–24** | 10 AWG GXL | K3 studs, MAXI 5006, battery posts |
@@ -138,25 +138,25 @@ HyPer K1 already supplies CAN (K1-13 / K1-2), precharge/key (K1-24), and coil (K
 | 20 | 0.250″ QC (insulated), 18 AWG | 18 AWG | T92 A1/A2, T9A, G9EJ, Cole Hersee coil |
 | 10 | 18 AWG HV 0.250″ QC | 18 AWG HV | G9EJ contacts 3/4, T9A pins 3/4 |
 | 1 pack | heat-shrink, adhesive lined, 10 AWG through 18 AWG | — | every small lug |
-| — | HV bus bars TB1/TB2/TB3 | 5/16″-18 + #10-32 | make — §6b |
+| — | HV bus bars TB1/TB2/TB3 | 5/16″-18 + 1/4-20 | make — §6b |
 
 ---
 
 ## 6b. Buy / make — HV copper bus bars
 
-Three identical C110 bars from one **1/4″ × 4″ × 12″** plate. TB1 and TB3 are pack **+**; TB2 is pack **−**. Blank is **2.50″ × 85 mm (3.35″)**. 2.5″ width gives two 2/0 palms 31.5 mm c-c so traction cables can approach at an angle. Length is shorter than 4″ because the SM40 sits toward the #10 end and the #10 holes are only 10 mm from that edge (5/16 washers still clear the 40 mm face, ~36 mm c-c). Section is ~403 mm².
+Three identical C110 bars from one **1/4″ × 4″ × 12″** plate. TB1 and TB3 are pack **+**; TB2 is pack **−**. Blank is **2.50″ × 90 mm (3.54″)**. 2.5″ width gives two 2/0 palms 31.5 mm c-c so traction cables can approach at an angle. SM40 sits toward the 1/4-20 end; USS 1/4″ washers clear the 40 mm face (~34 mm c-c). 5/16″ washers still clear (~36 mm c-c). Section is ~403 mm².
 
 | Qty | Item | MPN / spec | Used for |
 | --- | --- | --- | --- |
-| 3 | Copper bar blank | C110, **1/4″ × 2-1/2″ × 3.35″** (85 mm; from one 1/4″ × 4″ × 12″ plate) | TB1, TB2, TB3 |
-| 6 | 5/16″-18 bus stud, SS or silicon bronze, ~1.25″ above bar | brazed, press-in, or through-bolt + jam nut | 2/0 landings |
-| 6 | #10-32 bus stud, SS or silicon bronze, ~1.0″ above bar | same | 10/18 AWG HV landings |
-| 12 | 5/16″-18 hex nut + SAE flat washer + Belleville | SS | 2/0 clamp (2 nuts/stud if through-bolt) |
-| 12 | #10-32 hex nut + #10 washer + Belleville | SS | small HV clamp |
+| 3 | Copper bar blank | C110, **1/4″ × 2-1/2″ × 3.54″** (90 mm; from one 1/4″ × 4″ × 12″ plate) | TB1, TB2, TB3 |
+| 6 | 5/16″-18 hex bolt, silicon bronze, **1-1/4″** | through-bolt + jam nut | 2/0 landings |
+| 6 | 1/4″-20 hex bolt, silicon bronze, **1″** | through-bolt + jam nut | 10/18 AWG HV landings |
+| 12 | 5/16″-18 hex nut + USS flat washer (silicon bronze) + SS Belleville | bronze nuts/flats; SS spring | 2/0 clamp (nut + jam nut) |
+| 12 | 1/4″-20 hex nut + USS flat washer (silicon bronze) + SS Belleville | bronze nuts/flats; SS spring | small HV clamp (nut + jam nut) |
 | 3 | **SM40-M10** busbar standoff | BMC, 40 mm tall, 40 mm face / 34 mm waist, **M10** inserts 11 mm both ends, 1000 VAC / 1500 VDC | 1 per bar, under the center; **not** battery-box mounts |
 | 6 | M10 × 20 mm hex bolt + M10 flat washer | SS or zinc | 1 through bar into SM40 top; 1 from chassis into SM40 bottom |
 
-Do **not** substitute 1/4″ lugs on the small studs — #10-32 is 0.190″, not 0.250″.
+Use **1/4″** rings on the small studs (1/4-20 through-bolts). 2/0 still lands on **5/16″**.
 
 Do **not** land a cable on the center M10 — that bolt only clamps the bar to the SM40. Torque the M10 to the insulator rating (typically ~15 N·m), not lug torque.
 
@@ -201,4 +201,4 @@ Do **not** land a cable on the center M10 — that bolt only clamps the bar to t
 - J1772 symbol reference is `J1773`.
 - SW5 **Instruments** is a dash SPST on Always_Hot **Dash/Pi**. Ready/Precharge is not gated. Pi 5 + Touch Display 2 10″ + PiCAN 3 run from the PiCAN **3 A SMPS**.
 - Circuit_Breaker3 is the second pole of the **32 A** charger DC breaker; Circuit_Breaker4 is the second pole of the **10 A** DCIS breaker.
-- TB1/TB3 (`Terminal_Block+`) and TB2 (`Terminal_Block−`): small studs are **#10-32**, not 1/4″. 2/0 still lands on **5/16″**.
+- TB1/TB3 (`Terminal_Block+`) and TB2 (`Terminal_Block−`): small studs are **1/4-20**. 2/0 still lands on **5/16″**.
