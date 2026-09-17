@@ -15,3 +15,7 @@ Pi 5 + PiCAN 3 instrument panel (Go / Fiber / HTMX): see [`dashboard/README.md`]
 [https://www.bluesea.com/products/5032/ST_Blade_Split_Bus_Fuse_Block](https://www.bluesea.com/products/5032/ST_Blade_Split_Bus_Fuse_Block)
 [https://www.fastandquiet.com/downloadable/600w-dc-dc-converter-isolated-dcis-schematic.PDF](https://www.fastandquiet.com/downloadable/600w-dc-dc-converter-isolated-dcis-schematic.PDF)
 [https://www.ewertenergy.com/products/candapter/downloads/candapter_manual.pdf](https://www.ewertenergy.com/products/candapter/downloads/candapter_manual.pdf)
+[https://www.raspberrypi.com/products/raspberry-pi-5/](https://www.raspberrypi.com/products/raspberry-pi-5/)
+[https://www.raspberrypi.com/products/touch-display-2/](https://www.raspberrypi.com/products/touch-display-2/)
+[https://www.raspberrypi.com/documentation/accessories/touch-display-2.html](https://www.raspberrypi.com/documentation/accessories/touch-display-2.html)
+[https://www.raspberrypi.com/software/](https://www.raspberrypi.com/software/)

@@ -29,18 +29,20 @@ GOWORK=off GOOS=linux GOARCH=arm64 go build -o ih53ev-dashboard ./cmd/dashboard
 
 ## Install on Pi
 
+Fresh [Raspberry Pi 5](https://www.raspberrypi.com/products/raspberry-pi-5/) plus the official [Touch Display 2 10″](https://www.raspberrypi.com/products/touch-display-2/) (1200×1920). Connection steps: [Touch Display 2 docs](https://www.raspberrypi.com/documentation/accessories/touch-display-2.html). Vehicle wiring (PiCAN 3 SMPS, SW5, CAN tap): [`schematic/wires.md`](../schematic/wires.md) §11.
+
+**PiCAN 3:** the HAT covers the same 5 V/GND pins the display pigtail uses. Use a stacking header and pick 5 V/GND off the top, or tap 5 V/GND on the PiCAN to display J1. In the truck, power from the PiCAN **3 A SMPS** only — do **not** also plug USB-C into the Pi. Leave USB empty.
+
+Flash [Raspberry Pi OS](https://www.raspberrypi.com/software/) (64-bit, **desktop** — not Lite). Enable SSH in Imager customisation.
+
 ```bash
-sudo mkdir -p /opt/ih53ev/dashboard
-sudo cp ih53ev-dashboard canmap.yaml /opt/ih53ev/dashboard/
-sudo cp deploy/can0.network /etc/systemd/network/80-can0.network
-sudo cp deploy/ih53ev-dashboard.service /etc/systemd/system/
-sudo useradd -r -s /usr/sbin/nologin -G netdev ih53dash || true
-sudo systemctl daemon-reload
-sudo systemctl enable --now systemd-networkd
-sudo systemctl enable --now ih53ev-dashboard
+git clone https://github.com/scottfeldman/ih-53-ev.git
+cd ih-53-ev/dashboard
+sudo ./install.sh
+sudo reboot
 ```
 
-Kiosk: copy `deploy/ih53ev-kiosk.desktop` into desktop autostart.
+`install.sh` builds the dash, enables it on boot (fullscreen Chromium), and sets the panel to landscape plus large-screen desktop chrome. Reboot is required so the PiCAN overlay can create `can0`; until then the app exits and the browser has nothing to open. After reboot, Chromium should come up fullscreen on its own. If the image is sideways the wrong way, change `DISPLAY_TRANSFORM` in `install.sh` from `90` (Left) to `270` (Right) and re-run.
 
 ## Flags
 
