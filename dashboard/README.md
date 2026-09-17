@@ -42,7 +42,7 @@ sudo ./install.sh
 sudo reboot
 ```
 
-`install.sh` builds the dash, enables it on boot as fullscreen Chromium kiosk, and sets the panel to landscape plus medium-screen desktop chrome. Reboot is required so the PiCAN overlay can create `can0`; until then the app exits and the browser has nothing to open. After reboot, Chromium fills the screen. Tap **Desktop** (then confirm) to leave kiosk; open **IH-53 EV Dashboard** from the Raspberry menu or the desktop icon to return. If the image is sideways the wrong way, change `DISPLAY_TRANSFORM` in `install.sh` from `90` (Left) to `270` (Right) and re-run.
+`install.sh` builds the dash, enables it on boot as fullscreen Chromium kiosk, and matches the current desktop: landscape 10″ panel, taskbar at the bottom, solid red background, dash icon centered. Reboot is required so the PiCAN overlay can create `can0`; until then the app exits and the browser has nothing to open. After reboot, Chromium fills the screen. Tap **Desktop** (then confirm) to leave kiosk; open **IH-53 EV Dashboard** from the Raspberry menu or the desktop icon to return. If the image is sideways the wrong way, change `DISPLAY_TRANSFORM` in `install.sh` from `90` (Left) to `270` (Right) and re-run.
 
 ## Flags
 

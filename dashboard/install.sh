@@ -104,7 +104,7 @@ EOF
 }
 
 configure_desktop() {
-	echo "Configuring landscape display and medium-screen defaults..."
+	echo "Configuring landscape display, bottom panel, and red desktop..."
 	local dsi touch_dev desktop_font
 	dsi="$(connected_dsi || true)"
 	touch_dev="$(touch_device_name)"
@@ -150,16 +150,41 @@ EOF
 	if [[ ! -s "${wf_ini}" && -f /etc/xdg/wf-panel-pi/wf-panel-pi.ini ]]; then
 		cp /etc/xdg/wf-panel-pi/wf-panel-pi.ini "${wf_ini}"
 	fi
-	ensure_key "${wf_ini}" icon_size 36
-	ensure_key "${wf_ini}" window-list_max_width 200
+	ensure_key "${wf_ini}" position bottom
+	ensure_key "${wf_ini}" icon_size 48
+	ensure_key "${wf_ini}" window-list_max_width 300
+	if [[ -n "${dsi}" ]]; then
+		ensure_key "${wf_ini}" monitor "${dsi}"
+	fi
 
-	local desk_conf="${USER_HOME}/.config/pcmanfm/default/desktop-items-0.conf"
-	if [[ ! -f "${desk_conf}" && -f /etc/xdg/pcmanfm/default/desktop-items-0.conf ]]; then
-		cp /etc/xdg/pcmanfm/default/desktop-items-0.conf "${desk_conf}"
-	fi
-	if [[ -f "${desk_conf}" ]]; then
-		ensure_key "${desk_conf}" desktop_font "${desktop_font}"
-	fi
+	# Solid red desktop, dash icon centered on 1920×1200 landscape (10″ TD2 @ 90°).
+	write_desktop_items() {
+		local dest="$1"
+		cat > "${dest}" << EOF
+[*]
+wallpaper_mode=color
+wallpaper_common=1
+wallpaper=/usr/share/rpd-wallpaper/sunrise.jpg
+desktop_bg=#c01c28
+desktop_fg=#e8e8e8
+desktop_shadow=#c01c28
+desktop_font=${desktop_font}
+folder=${USER_HOME}/Desktop
+show_wm_menu=0
+sort=mtime;ascending;
+show_documents=0
+show_home=0
+show_trash=0
+show_mounts=1
+
+[ih53ev-dashboard.desktop]
+x=895
+y=539
+EOF
+	}
+	write_desktop_items "${USER_HOME}/.config/pcmanfm/default/desktop-items-0.conf"
+	write_desktop_items "${USER_HOME}/.config/pcmanfm/default/desktop-items-DSI-1.conf"
+	write_desktop_items "${USER_HOME}/.config/pcmanfm/default/desktop-items-DSI-2.conf"
 
 	chown -R "${APP_USER}:${APP_USER}" \
 		"${USER_HOME}/.config/kanshi" \
