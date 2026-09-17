@@ -35,6 +35,11 @@ nav { display: flex; gap: 8px; }
   background: var(--card); font-weight: 600; font-size: 1.05rem;
 }
 .nav.active { background: #243246; outline: 2px solid var(--accent); }
+.desktop-form { display: inline; margin: 0; }
+.nav.desktop {
+  background: transparent; color: var(--muted);
+  outline: 1px solid #333; font-weight: 600; border: 0;
+}
 .content { padding: 16px 20px 32px; max-width: 900px; margin: 0 auto; }
 .banners { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
 .banner {

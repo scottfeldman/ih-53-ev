@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install the IH-53 EV dashboard as a systemd service and open Chromium
-# fullscreen on :10000 at desktop login. Enables PiCAN 3 (can0 @ 250 kbps).
+# kiosk on :10000 at desktop login. Enables PiCAN 3 (can0 @ 250 kbps).
 # Run from this directory: sudo ./install.sh
 set -euo pipefail
 
@@ -213,7 +213,7 @@ systemctl restart systemd-networkd || true
 
 cat << BROWSER_SCRIPT > /usr/local/bin/ih53ev-browser.sh
 #!/usr/bin/env sh
-# Wait for the local dashboard, then open Chromium fullscreen (kiosk).
+# Wait for the local dashboard, then open Chromium kiosk (full screen).
 export DISPLAY="\${DISPLAY:-:0}"
 export XDG_RUNTIME_DIR="\${XDG_RUNTIME_DIR:-/run/user/${APP_UID}}"
 export WAYLAND_DISPLAY="\${WAYLAND_DISPLAY:-wayland-0}"
@@ -223,6 +223,45 @@ exec ${CHROMIUM} --kiosk --start-fullscreen --noerrdialogs --disable-infobars \\
 	--default-background-color=000000 --check-for-update-interval=31536000 --app="\$URL"
 BROWSER_SCRIPT
 chmod 0755 /usr/local/bin/ih53ev-browser.sh
+
+cat << POLKIT > /etc/polkit-1/rules.d/50-ih53ev-browser.rules
+polkit.addRule(function(action, subject) {
+	if (action.id == "org.freedesktop.systemd1.manage-units" &&
+		subject.user == "${APP_USER}") {
+		var unit = action.lookup("unit");
+		var verb = action.lookup("verb");
+		if (unit == "ih53ev-browser.service" &&
+			(verb == "start" || verb == "stop" || verb == "restart")) {
+			return polkit.Result.YES;
+		}
+	}
+});
+POLKIT
+systemctl try-reload-or-restart polkit.service >/dev/null 2>&1 || true
+
+cat << DESKTOP > /usr/share/applications/ih53ev-dashboard.desktop
+[Desktop Entry]
+Name=IH-53 EV Dashboard
+Comment=Instrument cluster (Chromium kiosk)
+Exec=/usr/bin/systemctl start ih53ev-browser.service
+Icon=ih53ev-dashboard
+Terminal=false
+Type=Application
+Categories=Utility;
+DESKTOP
+chmod 0644 /usr/share/applications/ih53ev-dashboard.desktop
+
+install -D -m 0644 "${INSTALL_DIR}/deploy/ih53ev-dashboard.svg" \
+	/usr/share/icons/hicolor/scalable/apps/ih53ev-dashboard.svg
+gtk-update-icon-cache -f /usr/share/icons/hicolor >/dev/null 2>&1 || true
+
+DESKTOP_DIR="${USER_HOME}/Desktop"
+install -d -o "${APP_USER}" -g "${APP_USER}" "${DESKTOP_DIR}"
+cp /usr/share/applications/ih53ev-dashboard.desktop "${DESKTOP_DIR}/ih53ev-dashboard.desktop"
+chmod 0755 "${DESKTOP_DIR}/ih53ev-dashboard.desktop"
+chown "${APP_USER}:${APP_USER}" "${DESKTOP_DIR}" "${DESKTOP_DIR}/ih53ev-dashboard.desktop"
+sudo -u "${APP_USER}" env HOME="${USER_HOME}" XDG_RUNTIME_DIR="/run/user/${APP_UID}" \
+	gio set "${DESKTOP_DIR}/ih53ev-dashboard.desktop" metadata::trusted true >/dev/null 2>&1 || true
 
 cat << BROWSER_UNIT > /etc/systemd/system/ih53ev-browser.service
 [Unit]

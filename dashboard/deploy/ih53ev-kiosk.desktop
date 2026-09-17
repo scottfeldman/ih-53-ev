@@ -1,9 +1,9 @@
 [Desktop Entry]
 Name=IH-53 EV Dashboard
 Comment=Instrument cluster (Chromium kiosk)
-Exec=chromium-browser --kiosk --noerrdialogs --disable-infobars --check-for-update-interval=31536000 --app=http://127.0.0.1:10000/
+Exec=/usr/bin/systemctl start ih53ev-browser.service
+Icon=ih53ev-dashboard
 Terminal=false
 Type=Application
-X-GNOME-Autostart-enabled=true
-# Copy to ~/.config/autostart/ or labwc/wayfire autostart on the Pi 5
-# Touch Display 2. Power is Always_Hot via SW5 Instruments — see schematic/wires.md §11.
+Categories=Utility;
+# Installed to /usr/share/applications and ~/Desktop by install.sh

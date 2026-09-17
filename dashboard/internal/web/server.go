@@ -3,7 +3,9 @@ package web
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"net/http"
+	"os/exec"
 	"sync"
 	"time"
 
@@ -40,6 +42,7 @@ func New(vs *state.VehicleState, oc *orion.Clearer) *Server {
 	app.Get("/partials/detail", s.handleDetailPartial)
 	app.Get("/events", s.handleSSE)
 	app.Post("/api/clear-faults", s.handleClearFaults)
+	app.Post("/api/desktop", s.handleDesktop)
 	app.Get("/static/htmx.min.js", s.handleHTMX)
 	s.app = app
 	return s
@@ -128,6 +131,19 @@ func (s *Server) handleClearFaults(c *fiber.Ctx) error {
 	return c.Redirect("/detail", http.StatusSeeOther)
 }
 
+func (s *Server) handleDesktop(c *fiber.Ctx) error {
+	if c.FormValue("confirm") != "yes" {
+		return c.Status(http.StatusBadRequest).SendString("confirm=yes required")
+	}
+	cmd := exec.Command("systemctl", "--no-block", "stop", "ih53ev-browser.service")
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Printf("stop kiosk: %v: %s", err, out)
+		return c.Status(http.StatusInternalServerError).SendString("could not leave kiosk")
+	}
+	return c.SendStatus(http.StatusNoContent)
+}
+
 var sseClientsMu sync.Mutex
 var sseClients = map[chan struct{}]struct{}{}
 
@@ -195,6 +211,12 @@ func pageShell(title, active string, body ...Node) Node {
 					nav("/", "Drive", "drive"),
 					nav("/charge", "Charge", "charge"),
 					nav("/detail", "Detail", "detail"),
+					Form(Method("post"), Action("/api/desktop"), Class("desktop-form"),
+						Input(Type("hidden"), Name("confirm"), Value("yes")),
+						Button(Type("submit"), Class("nav desktop"), Text("Desktop"),
+							Attr("onclick", "return confirm('Show the desktop? Open IH-53 EV Dashboard from the menu to return.');"),
+						),
+					),
 				),
 			),
 			Main(Class("content"), Group(body)),
