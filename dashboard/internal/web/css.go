@@ -2,7 +2,7 @@ package web
 
 const css = `
 :root {
-  --bg: #0b0f14;
+  --bg: #000000;
   --card: #151b24;
   --text: #e8eef7;
   --muted: #8b9bb0;
@@ -24,7 +24,7 @@ html, body {
 .top {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
   gap: 12px; padding: 16px 20px; border-bottom: 1px solid #1f2a38;
-  position: sticky; top: 0; background: rgba(11,15,20,0.95); z-index: 10;
+  position: sticky; top: 0; background: #000; z-index: 10;
 }
 .top h1 { margin: 0; font-size: 1.4rem; letter-spacing: 0.04em; }
 nav { display: flex; gap: 8px; }

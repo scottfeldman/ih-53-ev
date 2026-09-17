@@ -42,7 +42,7 @@ sudo ./install.sh
 sudo reboot
 ```
 
-`install.sh` builds the dash, enables it on boot (fullscreen Chromium), and sets the panel to landscape plus large-screen desktop chrome. Reboot is required so the PiCAN overlay can create `can0`; until then the app exits and the browser has nothing to open. After reboot, Chromium should come up fullscreen on its own. If the image is sideways the wrong way, change `DISPLAY_TRANSFORM` in `install.sh` from `90` (Left) to `270` (Right) and re-run.
+`install.sh` builds the dash, enables it on boot (fullscreen Chromium), and sets the panel to landscape plus medium-screen desktop chrome. Reboot is required so the PiCAN overlay can create `can0`; until then the app exits and the browser has nothing to open. After reboot, Chromium should come up fullscreen on its own. If the image is sideways the wrong way, change `DISPLAY_TRANSFORM` in `install.sh` from `90` (Left) to `270` (Right) and re-run.
 
 ## Flags
 

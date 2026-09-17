@@ -104,14 +104,14 @@ EOF
 }
 
 configure_desktop() {
-	echo "Configuring landscape display and large-screen defaults..."
+	echo "Configuring landscape display and medium-screen defaults..."
 	local dsi touch_dev desktop_font
 	dsi="$(connected_dsi || true)"
 	touch_dev="$(touch_device_name)"
 	if fc-list 2>/dev/null | grep -q 'Nunito Sans'; then
-		desktop_font="Nunito Sans Light 16"
+		desktop_font="Nunito Sans Light 12"
 	else
-		desktop_font="PibotoLt 16"
+		desktop_font="PibotoLt 12"
 	fi
 
 	install -d -o "${APP_USER}" -g "${APP_USER}" \
@@ -134,7 +134,7 @@ profile {
 EOF
 
 	ensure_touch_map "${dsi:-DSI-1}" "${touch_dev}"
-	ensure_key "${USER_HOME}/.config/labwc/environment" XCURSOR_SIZE 36
+	ensure_key "${USER_HOME}/.config/labwc/environment" XCURSOR_SIZE 24
 
 	local gtk_ini="${USER_HOME}/.config/gtk-3.0/settings.ini"
 	if [[ ! -f "${gtk_ini}" ]]; then
@@ -150,8 +150,8 @@ EOF
 	if [[ ! -s "${wf_ini}" && -f /etc/xdg/wf-panel-pi/wf-panel-pi.ini ]]; then
 		cp /etc/xdg/wf-panel-pi/wf-panel-pi.ini "${wf_ini}"
 	fi
-	ensure_key "${wf_ini}" icon_size 52
-	ensure_key "${wf_ini}" window-list_max_width 300
+	ensure_key "${wf_ini}" icon_size 36
+	ensure_key "${wf_ini}" window-list_max_width 200
 
 	local desk_conf="${USER_HOME}/.config/pcmanfm/default/desktop-items-0.conf"
 	if [[ ! -f "${desk_conf}" && -f /etc/xdg/pcmanfm/default/desktop-items-0.conf ]]; then
@@ -220,7 +220,7 @@ export WAYLAND_DISPLAY="\${WAYLAND_DISPLAY:-wayland-0}"
 URL="http://127.0.0.1:10000"
 until curl -sf "\$URL" >/dev/null 2>&1; do sleep 1; done
 exec ${CHROMIUM} --kiosk --start-fullscreen --noerrdialogs --disable-infobars \\
-	--check-for-update-interval=31536000 --app="\$URL"
+	--default-background-color=000000 --check-for-update-interval=31536000 --app="\$URL"
 BROWSER_SCRIPT
 chmod 0755 /usr/local/bin/ih53ev-browser.sh
 
