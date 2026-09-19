@@ -149,12 +149,13 @@ Three identical C110 bars from one **1/4″ × 4″ × 12″** plate. TB1 and TB
 | Qty | Item | MPN / spec | Used for |
 | --- | --- | --- | --- |
 | 3 | Copper bar blank | C110, **1/4″ × 2-1/2″ × 3.54″** (90 mm; from one 1/4″ × 4″ × 12″ plate) | TB1, TB2, TB3 |
-| 6 | 5/16″-18 hex bolt, silicon bronze, **1-1/4″** | through-bolt + jam nut | 2/0 landings |
+| 5 | 5/16″-18 hex bolt, silicon bronze, **1-1/4″** | through-bolt + jam nut | 2/0 landings (TB1 has 1; TB2/TB3 have 2) |
 | 6 | 1/4″-20 hex bolt, silicon bronze, **1″** | through-bolt + jam nut | 10/18 AWG HV landings |
-| 12 | 5/16″-18 hex nut + USS flat washer (silicon bronze) + SS Belleville | bronze nuts/flats; SS spring | 2/0 clamp (nut + jam nut) |
+| 10 | 5/16″-18 hex nut + USS flat washer (silicon bronze) + SS Belleville | bronze nuts/flats; SS spring | 2/0 clamp (nut + jam nut) |
 | 12 | 1/4″-20 hex nut + USS flat washer (silicon bronze) + SS Belleville | bronze nuts/flats; SS spring | small HV clamp (nut + jam nut) |
 | 3 | **SM40-M10** busbar standoff | BMC, 40 mm tall, 40 mm face / 34 mm waist, **M10** inserts 11 mm both ends, 1000 VAC / 1500 VDC | 1 per bar, under the center; **not** battery-box mounts |
 | 6 | M10 × 20 mm hex bolt + M10 flat washer | SS or zinc | 1 through bar into SM40 top; 1 from chassis into SM40 bottom |
+| 1 | M10 nut + M10 flat washer, 316 SS | SW1 output stud through TB1; torque 90–100 in·lb |
 
 Use **1/4″** rings on the small studs (1/4-20 through-bolts). 2/0 still lands on **5/16″**.
 

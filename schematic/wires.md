@@ -103,7 +103,7 @@ Tesla modules **BT2–BT6** in series. Inter-module runs are unlabeled next to t
 | HV-05 | 2/0 DLO | orange, red HS | BT5 + | module + lug | BT6 − | module − lug |
 | HV-06 | 2/0 DLO | orange, red HS | BT6 + | module + lug | F4 (A25X500-4) | bolted fuse pad |
 | HV-07 | 2/0 DLO | orange, red HS | F4 | bolted fuse pad | SW1 (Kill Switch HVBD6AXR) | switch HV terminal |
-| HV-08 | 2/0 DLO | orange, red HS | SW1 | switch HV terminal | TerminalBlock1 5/16″ | 5/16″ stud, ring lug |
+| HV-08 | — | — | SW1 output | **M10 stud through TB1** | TerminalBlock1 | bar clamp, no cable |
 | HV-09 | 2/0 DLO | orange, red HS | TerminalBlock1 5/16″ | 5/16″ stud, ring lug | Anderson350A600V1 right + | SB350 contact (2/0) |
 | HV-10 | 2/0 DLO | orange, black HS | TerminalBlock2 5/16″ | 5/16″ stud, ring lug | Anderson350A600V1 right − | SB350 contact (2/0) |
 | HV-11 | 2/0 DLO | orange, red HS | Anderson350A600V1 left + | SB350 contact (2/0) | TerminalBlock3 5/16″ (pack + bus) | 5/16″ stud, ring lug |
@@ -115,17 +115,17 @@ SB350 left housing mates to right housing: pack + bus ↔ TB1, inverter B+ ↔ T
 
 ### Bus bars TB1 / TB2 / TB3
 
-Schematic symbols `Terminal_Block+` (TB1, TB3) and `Terminal_Block−` (TB2). Each bar is four studs: **two 5/16″-18** (2/0 DLO) and **two 1/4-20** (10/18 AWG HV).
+Schematic symbols `Terminal_Block+` (TB1, TB3) and `Terminal_Block−` (TB2). TB2/TB3: **two 5/16″-18** (2/0) and **two 1/4-20**. TB1 replaces one 5/16″ with an **M10** clearance for SW1 (HVBD6AXR) output stud ([datasheet](https://downloads.rinconpower.com/hvbd-series-datasheet.pdf): 2× M10, 31.8 mm c-c, 19.1 mm thread). The other SW1 stud hangs off the bar for HV-07.
 
 Same copper blank for all three; landings:
 
-| Bar | Net | 5/16″ A | 5/16″ B | 1/4-20 A | 1/4-20 B |
+| Bar | Net | 5/16″ / M10 A | 5/16″ B | 1/4-20 A | 1/4-20 B |
 | --- | --- | --- | --- | --- | --- |
-| TB1 | pack + (rear / Anderson) | HV-08 (SW1) | HV-09 (SB350 +) | CH-DC+2 (32 A breaker) | DC-IN+2 (CB4) |
+| TB1 | pack + (rear / Anderson) | **SW1 M10 stud** (was HV-08) | HV-09 (SB350 +) | CH-DC+2 (32 A breaker) | DC-IN+2 (CB4) |
 | TB2 | pack − | HV-01 (BT2 −) | HV-10 (SB350 −) | CH-DC−2 (CB3) | DC-IN−2 (10 A breaker) |
 | TB3 | pack + (inverter / G1) | HV-11 (SB350 left +) | HV-14 (G1 A1+) | PC-01 (precharge) | unused |
 
-Physical part: C110 copper **1/4″ × 2-1/2″ × 3.54″** (63.5 × 90 × 6.35 mm), from one 1/4″ × 4″ × 12″ plate. Two **5/16″-18** through-bolts (2/0) on one end, two **1/4-20** through-bolts (10/18 AWG HV) on the other (12 mm from that edge); **SM40-M10** offset toward the 1/4-20 end (~36 mm to 5/16″, ~34 mm to 1/4″ — underside heads clear the insulator). M10 through the copper into the top insert; M10 from chassis into the bottom. Not the battery-box brackets. See FreeCAD `bus bars/bus bars.FCStd`.
+Physical part: C110 copper **1/4″ × 2-1/2″ × 3.54″** (63.5 × 90 × 6.35 mm). TB2/TB3: two **5/16″-18** and two **1/4-20**. TB1: one **M10** (SW1 output), one **5/16″-18** (HV-09), two **1/4-20**. **SM40-M10** offset toward the 1/4-20 end. See FreeCAD `bus bars/bus bars.FCStd`.
 
 Cell taps on BT2–BT6 are **not** wired on this sheet. Orion tap harness is 22 AWG to TE 1318389-1 (orange / red / yellow groups, black grounds). Schematic notes **internally termination** at the modules.
 
