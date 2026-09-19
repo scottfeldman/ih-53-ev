@@ -164,13 +164,20 @@ HINGE_FOOT_Y = 38.0
 HINGE_PIN_OVERHANG = 16.0
 # Knob OD cleared the hinge knuckles at 32; 28 turns freely.
 # Stand-off boss is on the hinge side (opposite the nut pocket).
+# Nut pocket sized for 1/4"-20 hex (AF 7/16" = 11.11) + FDM clearance.
 HINGE_KNOB_D = 28.0
 HINGE_KNOB_T = 10.0
 HINGE_KNOB_BOSS_D = 14.0
 HINGE_KNOB_BOSS_H = 2.5
-HINGE_KNOB_HEX = 10.6
-HINGE_KNOB_HEX_T = 5.6
+HINGE_KNOB_HEX = 11.9
+HINGE_KNOB_HEX_T = 6.2
 HINGE_KNOB_GAP = 0.8
+# Mild finger scallops (~2.4 mm deep). cyl() takes diameter.
+HINGE_KNOB_KNURL_N = 8
+HINGE_KNOB_KNURL_D = 12.0
+HINGE_KNOB_KNURL_DEPTH = 2.4
+# Round the knurl peaks / outer rim so they don't dig into fingers.
+HINGE_KNOB_FILLET = 1.0
 M6_SLOT_W = 6.4
 M6_SLOT_L = 14.0
 
@@ -369,21 +376,67 @@ def hex_prism(af, h, x, y, z):
     return Part.Face(Part.makePolygon(verts)).extrude(App.Vector(0, 0, h))
 
 
+def _knob_grip_fillet(knob, t):
+    # Soften only the vertical knurl ridges. Do not fillet the short
+    # outer rim arcs at each peak — those look like holes. Tip-cylinder
+    # cuts also punched through; ridge fillet keeps solid rounded tips.
+    r_fillet = HINGE_KNOB_FILLET
+    r_out = HINGE_KNOB_D / 2.0
+    r_min = r_out - HINGE_KNOB_KNURL_DEPTH - 0.3
+    seen = set()
+    ridge = []
+    for e in knob.Edges:
+        try:
+            mid = e.valueAt(0.5 * (e.FirstParameter + e.LastParameter))
+        except Exception:
+            continue
+        rho = math.hypot(mid.x, mid.y)
+        if rho < r_min:
+            continue
+        bb = e.BoundBox
+        tid = e.Curve.TypeId
+        if "Line" not in tid or bb.ZLength < 0.55 * t or bb.ZMin <= -0.35:
+            continue
+        # Boolean scallops leave duplicate ridge edges; fillet once each.
+        key = (round(mid.x, 3), round(mid.y, 3))
+        if key in seen:
+            continue
+        seen.add(key)
+        ridge.append(e)
+
+    out = knob
+    ok = 0
+    for e in ridge:
+        for rad in (r_fillet, 0.75, 0.5):
+            try:
+                out = out.makeFillet(rad, [e])
+                ok += 1
+                break
+            except Exception:
+                continue
+    print("knob ridge fillets", ok, "of", len(ridge))
+    return out
+
+
 def build_knob():
     # Stand-off boss on the bed (z <= 0) faces the hinge. Hex nut pocket
-    # on the outer face (z = T). Through-hole along +Z.
+    # on the outer face (z = T) for a 1/4"-20 nut. Through-hole along +Z.
     t = HINGE_KNOB_T
     bh = HINGE_KNOB_BOSS_H
     knob = cyl(HINGE_KNOB_D, t, 0.0, 0.0, 0.0)
     boss = cyl(HINGE_KNOB_BOSS_D, bh, 0.0, 0.0, -bh)
     knob = fuse_all([knob, boss])
-    n = 8
-    rd = HINGE_KNOB_D / 2.0 + 1.2
+    n = HINGE_KNOB_KNURL_N
+    kd = HINGE_KNOB_KNURL_D
+    kr = kd / 2.0
+    rd = HINGE_KNOB_D / 2.0 + kr - HINGE_KNOB_KNURL_DEPTH
     for i in range(n):
         a = i * 2.0 * math.pi / n
         knob = knob.cut(
-            cyl(9.0, t + 2.0, rd * math.cos(a), rd * math.sin(a), -1.0)
+            cyl(kd, t + 2.0, rd * math.cos(a), rd * math.sin(a), -1.0)
         )
+    knob = knob.removeSplitter()
+    knob = _knob_grip_fillet(knob, t)
     knob = knob.cut(
         cyl(HINGE_PIN_CLR, t + bh + 2.0, 0.0, 0.0, -bh - 1.0)
     )
