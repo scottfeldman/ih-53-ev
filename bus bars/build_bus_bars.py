@@ -82,10 +82,8 @@ HVBD_COLLAR_OD = 64.0
 HVBD_KNOB_OD = 54.0
 HVBD_REAR_BOSS_OD = 62.0
 
-# TB1-TB2: 165 mm SM40 centers so ~50 mm air remains if both bars
-# yaw a full turn around the M10 (copper circumradius 57.5 mm).
-# TB2-TB3 keep the original 50 mm aligned air gap.
-PITCH_TB12 = 165.0
+# TB1-TB2: 50 mm aligned air. Bars are bolted down, so spin clearance is not needed.
+PITCH_TB12 = BAR_W + 50.0
 PITCH_TB23 = BAR_W + 50.0
 
 # Anderson SB350 (DS-SB350): housing 107.9 x 69.9 x 33.3, mated 182.6, poles 34.9
@@ -95,6 +93,8 @@ SB350_H = 33.3
 SB350_MATED = 182.6
 SB350_POLE_CC = 34.9
 SB350_CONTACT_L = 75.2
+SB350_CABLE = 38.0
+SB350_CUT_MGN = 5.0
 DLO_2_0_OD = 16.5
 LUG_516_BARREL_L = 32.0
 LUG_516_BARREL_R = 8.0
@@ -128,18 +128,29 @@ M8_HEAD_H = 5.3
 M8_NUT_H = 6.5
 SW1_POST_AF = 19.0
 SW1_PAD_T = 6.35
-SW1_CY_OFF = 50.0
-COVER_WALL = 3.0
-COVER_LID_T = 3.0
-COVER_CLEAR = 32.0
-COVER_INNER_H = 115.0
+SW1_BAR_GAP = 12.0
+COVER_WALL = 4.0
+COVER_LID_T = 3.2
+COVER_CLEAR = 18.0
+COVER_INNER_H = 105.0
 COVER_SCREW_INSET = 10.0
+COVER_FLANGE = 20.0
+COVER_FLANGE_T = 8.0
 COVER_SW1_HOLE_R = HVBD_COLLAR_OD / 2.0 + 16.0
-COVER_CB_MARGIN = 6.0
+COVER_RABBET = 10.0
+COVER_LAP = 12.0
+COVER_SEAT = 4.0
+COVER_GAP = 0.2
+COVER_M4_TAP = 3.3
+COVER_M4_CLR = 4.5
 
 # CHTAIXI DZ47Z-63 2P 1000 V DC MCB (Amazon B0983ZHK69 32 A, B09BQQCV3P 10 A)
 # Listing: 2.95 x 1.42 x 3.15 in. Follow marked +/- ; LINE toward pack.
 AWG10_OD = 7.5
+# DIN 40430 drill. PG11 5-10 mm jacket (10 AWG HV); PG21 13-18 mm (2/0 DLO).
+PG11 = 18.6
+PG21 = 28.3
+PG_PITCH = 32.0
 MCB_W = 36.0
 MCB_D = 75.0
 MCB_H = 80.0
@@ -165,6 +176,8 @@ COLOR_SCM10 = (0.10, 0.10, 0.11)
 COLOR_FUSE = (0.82, 0.74, 0.52)
 COLOR_PLATE = (0.55, 0.56, 0.58)
 COLOR_COVER = (0.42, 0.45, 0.48)
+COLOR_PC = (0.55, 0.72, 0.82)
+COLOR_GLAND = (0.12, 0.12, 0.13)
 COLOR_MCB = (0.91, 0.91, 0.89)
 COLOR_MCB_TOGGLE = (0.14, 0.14, 0.16)
 COLOR_DIN = (0.62, 0.64, 0.66)
@@ -562,19 +575,19 @@ def sweep_tube(points, radius):
     return _fuse_many(chunks)
 
 
-def sb350_half(cable_x, cy, cable_dir):
+def sb350_half(cable_x, cy, cable_dir, z0=0.0):
     """One SB350 housing. cable_dir +1: cables enter from +X (pack half)."""
     if cable_dir > 0:
         x0 = cable_x - SB350_L
     else:
         x0 = cable_x
-    body = Part.makeBox(SB350_L, SB350_W, SB350_H, App.Vector(x0, cy - SB350_W / 2.0, 0.0))
+    body = Part.makeBox(SB350_L, SB350_W, SB350_H, App.Vector(x0, cy - SB350_W / 2.0, z0))
     try:
         body = body.makeChamfer(4.0, [e for e in body.Edges if e.Length > 50])
     except Exception:
         pass
     pole_ys = (cy - SB350_POLE_CC / 2.0, cy + SB350_POLE_CC / 2.0)
-    z_c = SB350_H / 2.0
+    z_c = z0 + SB350_H / 2.0
     r_entry = DLO_2_0_OD / 2.0 + 2.0
     for y in pole_ys:
         body = body.cut(
@@ -595,7 +608,7 @@ def sb350_half(cable_x, cy, cable_dir):
                 App.Vector(-cable_dir, 0, 0),
             )
         )
-    return body, _fuse_many(contacts), pole_ys, z_c
+    return body, _fuse_many(contacts), pole_ys, z_c, x0
 
 
 def yaw_about_bar(shapes, origin, yaw_deg):
@@ -608,30 +621,44 @@ def yaw_about_bar(shapes, origin, yaw_deg):
         sh.rotate(center, axis, yaw_deg)
 
 
-def sm40_xy(origin, yaw_deg=0.0):
+def bar_point(origin, lx, ly, yaw_deg=0.0):
+    """XY of a point on a bar, after optional yaw about the bar center."""
     ox, oy, _oz = origin
-    mx, my = ox + MOUNT_X, oy + MOUNT_Y
+    px, py = ox + lx, oy + ly
     if abs(float(yaw_deg)) < 1e-9:
-        return mx, my
+        return px, py
     cx, cy = ox + BAR_L / 2.0, oy + BAR_W / 2.0
     ang = math.radians(yaw_deg)
-    dx, dy = mx - cx, my - cy
-    return cx + dx * math.cos(ang) - dy * math.sin(ang), cy + dx * math.sin(ang) + dy * math.cos(ang)
+    dx, dy = px - cx, py - cy
+    return (
+        cx + dx * math.cos(ang) - dy * math.sin(ang),
+        cy + dx * math.sin(ang) + dy * math.cos(ang),
+    )
 
 
-def f4_layout(tb1_origin):
-    ox, oy, _oz = tb1_origin
-    y_fuse = oy - 130.0
-    x_pack = ox + 2.0
-    x_sw1 = x_pack + A25X_HOLE_CC
-    return x_pack, x_sw1, y_fuse
+def sm40_xy(origin, yaw_deg=0.0):
+    return bar_point(origin, MOUNT_X, MOUNT_Y, yaw_deg)
+
+
+def f4_layout(tb1_origin, tb2_origin=None):
+    """F4 long axis along Y, west of SW1. Pack pad south so B+ still arrives from -X."""
+    sw = sw1_pose(tb1_origin)
+    x_fuse = sw["x_out"] - HVBD_BODY_OD / 2.0 - 20.0 - A25X_OD / 2.0
+    y_pack = sw["cy"] - A25X_HOLE_CC / 2.0
+    y_sw = sw["cy"] + A25X_HOLE_CC / 2.0
+    if tb2_origin is not None:
+        wall = sb350_layout(tb1_origin, tb2_origin)["pack_x0"]
+        min_x = wall + 10.0 + A25X_OD / 2.0
+        if x_fuse < min_x:
+            x_fuse = min_x
+    return x_fuse, y_pack, y_sw
 
 
 def sw1_pose(tb1_origin):
-    """HVBD6AXR on the pack plate, south of TB1. Output jumper to TB1 Y1."""
+    """HVBD6AXR west of TB1, same Y as the bar. Output jumper to TB1 Y1."""
     ox, oy, oz = tb1_origin
-    x_out = ox + STUD_X1
-    cy = oy - SW1_CY_OFF
+    x_out = ox - HVBD_MOUNT_CC / 2.0 - SW1_BAR_GAP
+    cy = oy + STUD_Y1 + HVBD_STUD_CC / 2.0
     y_out = cy + HVBD_STUD_CC / 2.0
     z_term = oz + SM40_H + BAR_T
     return {
@@ -659,24 +686,28 @@ def sw1_mount_layout(tb1_origin):
 
 
 def cb_layout(tb1_origin, tb2_origin):
-    """CHTAIXI 2P pair on the 1/4-20 end. + pole toward TB1, LINE toward pack."""
+    """Two 2P stacked along Y, 36 mm in X. LINE faces south toward the bars."""
     ox1, oy1, oz1 = tb1_origin
     _ox2, oy2, _oz2 = tb2_origin
-    x_front = ox1 + BAR_L + LUG_14_BARREL_L + 18.0
+    x_left = ox1 + BAR_L + LUG_14_BARREL_L + 10.0
+    x_mid = x_left + MCB_W / 2.0
     y_mid = (oy1 + MOUNT_Y + oy2 + MOUNT_Y) / 2.0
-    cy3 = y_mid - (MCB_W + MCB_GAP) / 2.0
-    cy4 = y_mid + (MCB_W + MCB_GAP) / 2.0
-    z_base = PLATE_T
+    stack = 2.0 * MCB_D + MCB_GAP
+    y_front3 = y_mid - stack / 2.0
+    y_front4 = y_front3 + MCB_D + MCB_GAP
     return {
-        "x_front": x_front,
-        "x_back": x_front + MCB_D,
-        "cy3": cy3,
-        "cy4": cy4,
-        "z_base": z_base,
-        "z_line": z_base + MCB_H - 12.0,
-        "z_load": z_base + 16.0,
-        "y_plus": MCB_MOD / 2.0,
-        "y_minus": MCB_MOD / 2.0,
+        "x_left": x_left,
+        "x_mid": x_mid,
+        "x_right": x_left + MCB_W,
+        "x_front": x_left,
+        "x_back": x_left + MCB_W,
+        "y_front3": y_front3,
+        "y_front4": y_front4,
+        "cy3": y_front3 + MCB_D / 2.0,
+        "cy4": y_front4 + MCB_D / 2.0,
+        "z_base": PLATE_T,
+        "z_line": PLATE_T + MCB_H - 12.0,
+        "z_load": PLATE_T + 16.0,
         "lug_z": oz1 + SM40_H + BAR_T + LUG_14_BARREL_R,
         "barrel_x": ox1 + BAR_L + LUG_14_BARREL_L,
         "tb1_y1": oy1 + STUD_Y1,
@@ -702,57 +733,78 @@ def _corner_holes(x0, y0, x1, y1, inset=8.0, r=PLATE_HOLE_R):
     )
 
 
+def _cover_flange_screws(px0, px1, py0, py1, sb):
+    """M6 through plate and printed foot. Skip the west mid-hole if it hits SB350."""
+    inset = COVER_SCREW_INSET
+    xs = (px0 + inset, 0.5 * (px0 + px1), px1 - inset)
+    ys = (py0 + inset, 0.5 * (py0 + py1), py1 - inset)
+    keep0 = sb["y0"] - SB350_CUT_MGN - 12.0
+    keep1 = sb["y1"] + SB350_CUT_MGN + 12.0
+    pts = []
+    for hx in xs:
+        for hy in ys:
+            if hx not in (xs[0], xs[2]) and hy not in (ys[0], ys[2]):
+                continue
+            if abs(hx - xs[0]) < 0.2 and keep0 < hy < keep1:
+                continue
+            pts.append((hx, hy))
+    wx = xs[0]
+    for hy in (keep0 - 20.0, keep1 + 20.0):
+        if ys[0] + 8.0 < hy < ys[2] - 8.0:
+            pts.append((wx, hy))
+    return pts
+
+
 def pack_plate_layout(tb1_origin, tb2_origin):
-    """Outer plate / cover envelope, mounting holes, and SW1 plate location."""
-    ox, oy, _oz = tb1_origin
-    x_pack, x_fuse_sw, y_fuse = f4_layout(tb1_origin)
+    """Outer plate / cover envelope, mounting holes, SB350 bulkhead, SW1."""
+    x_fuse, y_pack, y_sw = f4_layout(tb1_origin, tb2_origin)
     cb = cb_layout(tb1_origin, tb2_origin)
     sw = sw1_pose(tb1_origin)
     mt = sw1_mount_layout(tb1_origin)
+    sb = sb350_layout(tb1_origin, tb2_origin)
     sm1 = sm40_xy(tb1_origin)
     sm2 = sm40_xy(tb2_origin)
-    south = cb["cy3"] - MCB_W / 2.0 - 26.0
-    north = cb["cy4"] + MCB_W / 2.0 + 26.0
-    x_dev = cb["x_front"] + MCB_D + 35.0
-    f4_x0 = x_pack - SCM10_BASE_L / 2.0
-    f4_x1 = x_fuse_sw + SCM10_BASE_L / 2.0
-    f4_y0 = y_fuse - SCM10_BASE_W / 2.0
+    south = cb["y_front3"] - 16.0
+    north = cb["y_front4"] + MCB_D + 16.0
+    f4_x0 = x_fuse - A25X_OD / 2.0
+    f4_x1 = x_fuse + A25X_OD / 2.0
+    f4_y0 = y_pack - SCM10_BASE_L / 2.0
+    f4_y1 = y_sw + SCM10_BASE_L / 2.0
     sw_x = sw["x_out"]
     sw_y_out = sw["y_out"]
     sw_cy = sw["cy"]
-    parts_x0 = min(f4_x0, 0.0, cb["x_front"], sw_x - HVBD_MOUNT_CC / 2.0 - 12.0)
-    parts_x1 = max(f4_x1, BAR_L, x_dev, sw_x + HVBD_MOUNT_CC / 2.0 + 12.0)
+    parts_x0 = min(f4_x0, 0.0, sb["pack_x0"], sw_x - HVBD_MOUNT_CC / 2.0 - 12.0)
+    parts_x1 = max(f4_x1, BAR_L, cb["x_back"] + 10.0, sw_x + HVBD_MOUNT_CC / 2.0 + 12.0)
     parts_y0 = min(f4_y0, 0.0, south, sw_cy - HVBD_BODY_OD / 2.0 - 8.0, mt["posts"][0][1] - 16.0)
-    parts_y1 = max(y_fuse + SCM10_BASE_W / 2.0, PITCH_TB12 + BAR_W, north)
-    inner_x0 = parts_x0 - COVER_CLEAR
+    parts_y1 = max(f4_y1, PITCH_TB12 + BAR_W, north, sb["y1"] + 8.0)
+    # West inner wall at the SB350 mate face so the inverter half plugs through a cutout.
+    inner_x0 = sb["pack_x0"]
     inner_x1 = parts_x1 + COVER_CLEAR
     inner_y0 = parts_y0 - COVER_CLEAR
     inner_y1 = parts_y1 + COVER_CLEAR
-    px0 = inner_x0 - COVER_WALL
-    px1 = inner_x1 + COVER_WALL
-    py0 = inner_y0 - COVER_WALL
-    py1 = inner_y1 + COVER_WALL
+    px0 = inner_x0 - COVER_WALL - COVER_FLANGE
+    px1 = inner_x1 + COVER_WALL + COVER_FLANGE
+    py0 = inner_y0 - COVER_WALL - COVER_FLANGE
+    py1 = inner_y1 + COVER_WALL + COVER_FLANGE
     z_lid = PLATE_T + COVER_INNER_H
     holes = [
         (sm1[0], sm1[1], HOLE_M10 / 2.0),
         (sm2[0], sm2[1], HOLE_M10 / 2.0),
     ]
-    for x in (x_pack, x_fuse_sw):
-        for dx in (-18.0, 18.0):
-            holes.append((x + dx, y_fuse, HOLE_M6 / 2.0))
-    din_x = cb["x_front"] + MCB_D - 18.0
-    din_y0 = cb["cy3"] - MCB_W / 2.0 - 8.0
-    din_y1 = cb["cy4"] + MCB_W / 2.0 + 8.0
+    holes.extend(sb["holes"])
+    for y in (y_pack, y_sw):
+        for dy in (-18.0, 18.0):
+            holes.append((x_fuse, y + dy, HOLE_M6 / 2.0))
+    din_x = cb["x_mid"]
+    din_y0 = cb["y_front3"] + 12.0
+    din_y1 = cb["y_front4"] + MCB_D - 12.0
     holes.append((din_x, din_y0 + 12.0, HOLE_M6 / 2.0))
     holes.append((din_x, din_y1 - 12.0, HOLE_M6 / 2.0))
     for px, py in mt["posts"]:
         holes.append((px, py, HOLE_M8 / 2.0))
-    xs = (px0 + COVER_SCREW_INSET, (px0 + px1) / 2.0, px1 - COVER_SCREW_INSET)
-    ys = (py0 + COVER_SCREW_INSET, (py0 + py1) / 2.0, py1 - COVER_SCREW_INSET)
-    for hx in xs:
-        for hy in ys:
-            if hx in (xs[0], xs[2]) or hy in (ys[0], ys[2]):
-                holes.append((hx, hy, HOLE_M6 / 2.0))
+    cover_screws = _cover_flange_screws(px0, px1, py0, py1, sb)
+    for hx, hy in cover_screws:
+        holes.append((hx, hy, HOLE_M6 / 2.0))
     return {
         "px0": px0,
         "px1": px1,
@@ -763,20 +815,23 @@ def pack_plate_layout(tb1_origin, tb2_origin):
         "inner_y0": inner_y0,
         "inner_y1": inner_y1,
         "holes": holes,
-        "z_lid": z_lid,
+        "z_wall_top": z_lid,
         "sw_x": sw_x,
         "sw_y_out": sw_y_out,
         "sw_cy": sw_cy,
         "z_sw1_term": sw["z_term"],
         "cb": cb,
-        "x_pack": x_pack,
-        "x_fuse_sw": x_fuse_sw,
-        "y_fuse": y_fuse,
+        "x_pack": x_fuse,
+        "x_fuse_sw": x_fuse,
+        "y_fuse": y_pack,
+        "y_sw": y_sw,
+        "sb": sb,
+        "cover_screws": cover_screws,
     }
 
 
 def add_mount_plates(doc, tb1_origin, tb2_origin, tb3_origin):
-    """1/4 in plates with holes for SM40, 1SCM10, DIN rail, SW1 posts, and cover screws."""
+    """1/4 in plates with holes for SM40, 1SCM10, DIN rail, SW1, SB350, and cover screws."""
     lay = pack_plate_layout(tb1_origin, tb2_origin)
     pack = plate_box(lay["px0"], lay["py0"], lay["px1"], lay["py1"], lay["holes"])
     sm3 = sm40_xy(tb3_origin, 180.0)
@@ -805,12 +860,12 @@ def add_sw1(doc, tb1_origin):
     mt = sw1_mount_layout(tb1_origin)
     housing, handle, terminals, bushings = hvbd_switch(sw["x_out"], sw["y_out"], sw["z_term"])
     z_lug = sw["z_term"]
-    lug_in = offbar_lug_y(sw["x_out"], sw["y_in"], z_lug, -1, 22.0, 10.0, 8.0, 32.0)
-    lug_out = offbar_lug_y(sw["x_out"], sw["y_out"], z_lug, 1, 22.0, 10.0, 8.0, 32.0)
+    lug_in = offbar_lug(sw["x_out"], sw["y_out"], z_lug, -1, 22.0, 10.0, 8.0, 32.0)
+    lug_out = offbar_lug(sw["x_out"], sw["y_in"], z_lug, 1, 22.0, 10.0, 8.0, 32.0)
     z_j = z_lug + LUG_516_BARREL_R
     jumper = sweep_tube(
         (
-            App.Vector(sw["x_out"], sw["y_out"], z_j),
+            App.Vector(sw["x_out"], sw["y_in"], z_j),
             App.Vector(ox + STUD_X1, oy + STUD_Y1, z_j),
         ),
         DLO_2_0_OD / 2.0,
@@ -868,90 +923,406 @@ def add_sw1(doc, tb1_origin):
     return grp
 
 
+def _cover_split_xy(x0, x1, y0, y1, sb):
+    """Mid-side glue joints. Keep the west split off the SB350 cutout."""
+    mx = 0.5 * (x0 + x1)
+    my = 0.5 * (y0 + y1)
+    keep = SB350_CUT_MGN + COVER_LAP + 8.0
+    if sb["y0"] - keep < my < sb["y1"] + keep:
+        my = sb["y1"] + SB350_CUT_MGN + 22.0
+        if my > y1 - 50.0:
+            my = sb["y0"] - SB350_CUT_MGN - 22.0
+    return mx, my
+
+
+def _hex_along_x(af, h, x_face, y, z, dir_x):
+    nut = hex_prism(af, h)
+    nut.rotate(App.Vector(0, 0, 0), App.Vector(0, 1, 0), 90.0 if dir_x > 0 else -90.0)
+    nut.translate(App.Vector(x_face, y, z))
+    return nut
+
+
+def dummy_pg_gland(hole_d, x_outer, y, z, wall_t, inward):
+    """Dummy nylon PG gland. inward +1: cable enters +X (west wall)."""
+    af = hole_d + 6.0
+    nut_h = 6.0
+    dome_l = 14.0
+    thread_r = hole_d / 2.0 - 0.4
+    if inward > 0:
+        thread = Part.makeCylinder(
+            thread_r, wall_t + nut_h + 4.0, App.Vector(x_outer - 2.0, y, z), App.Vector(1, 0, 0)
+        )
+        inner = _hex_along_x(af, nut_h, x_outer + wall_t, y, z, 1)
+        outer = _hex_along_x(af, nut_h, x_outer, y, z, -1)
+        dome = Part.makeCylinder(
+            af * 0.42, dome_l, App.Vector(x_outer - nut_h, y, z), App.Vector(-1, 0, 0)
+        )
+    else:
+        thread = Part.makeCylinder(
+            thread_r, wall_t + nut_h + 4.0, App.Vector(x_outer + 2.0, y, z), App.Vector(-1, 0, 0)
+        )
+        inner = _hex_along_x(af, nut_h, x_outer - wall_t, y, z, -1)
+        outer = _hex_along_x(af, nut_h, x_outer, y, z, 1)
+        dome = Part.makeCylinder(
+            af * 0.42, dome_l, App.Vector(x_outer + nut_h, y, z), App.Vector(1, 0, 0)
+        )
+    return _fuse_many([thread, inner, outer, dome])
+
+
+def gland_layout(tb1_origin, tb2_origin):
+    """PG21 for pack 2/0 B+/B- (west). PG11 for charger and DCIS 10 AWG HV (east)."""
+    lay = pack_plate_layout(tb1_origin, tb2_origin)
+    x0, x1 = lay["inner_x0"], lay["inner_x1"]
+    y0, y1 = lay["inner_y0"], lay["inner_y1"]
+    w = COVER_WALL
+    _mx, my = _cover_split_xy(x0, x1, y0, y1, lay["sb"])
+    cb = lay["cb"]
+    z_bp = PLATE_T + SCM10_BOSS_H + A25X_BLADE_T + LUG_516_BARREL_R
+    z_e = PLATE_T + PG11 / 2.0 + 16.0
+    clear = PG11 / 2.0 + 16.0
+    glands = [
+        {
+            "name": "PG21_Bp",
+            "pg": "PG21",
+            "hole": PG21,
+            "y": lay["y_fuse"],
+            "z": z_bp,
+            "x_outer": x0 - w,
+            "inward": 1,
+            "cable_r": DLO_2_0_OD / 2.0,
+        },
+        {
+            "name": "PG21_Bm",
+            "pg": "PG21",
+            "hole": PG21,
+            "y": tb2_origin[1] + STUD_Y2,
+            "z": z_bp,
+            "x_outer": x0 - w,
+            "inward": 1,
+            "cable_r": DLO_2_0_OD / 2.0,
+        },
+        {
+            "name": "PG11_CHGp",
+            "pg": "PG11",
+            "hole": PG11,
+            "y": my - clear,
+            "z": z_e,
+            "x_outer": x1 + w,
+            "inward": -1,
+            "cable_r": AWG10_OD / 2.0,
+        },
+        {
+            "name": "PG11_CHGm",
+            "pg": "PG11",
+            "hole": PG11,
+            "y": my - clear - PG_PITCH,
+            "z": z_e,
+            "x_outer": x1 + w,
+            "inward": -1,
+            "cable_r": AWG10_OD / 2.0,
+        },
+        {
+            "name": "PG11_DCISm",
+            "pg": "PG11",
+            "hole": PG11,
+            "y": my + COVER_LAP + clear,
+            "z": z_e,
+            "x_outer": x1 + w,
+            "inward": -1,
+            "cable_r": AWG10_OD / 2.0,
+        },
+        {
+            "name": "PG11_DCISp",
+            "pg": "PG11",
+            "hole": PG11,
+            "y": my + COVER_LAP + clear + PG_PITCH,
+            "z": z_e,
+            "x_outer": x1 + w,
+            "inward": -1,
+            "cable_r": AWG10_OD / 2.0,
+        },
+    ]
+    named = {g["name"]: g for g in glands}
+    named["all"] = glands
+    named["x0"] = x0
+    named["x1"] = x1
+    named["w"] = w
+    return named
+
+
+def _cover_apply_cutouts(sh, lay, glands, x0, x1, w, z0):
+    sb = lay["sb"]
+    mgn = SB350_CUT_MGN
+    sh = sh.cut(
+        Part.makeBox(
+            w + 4.0,
+            (sb["y1"] - sb["y0"]) + 2.0 * mgn,
+            SB350_H + 2.0 * mgn + 4.0,
+            App.Vector(x0 - w - 2.0, sb["y0"] - mgn, sb["z0"] - 2.0),
+        )
+    )
+    sh = sh.cut(
+        Part.makeBox(
+            COVER_FLANGE + 4.0,
+            (sb["y1"] - sb["y0"]) + 2.0 * mgn,
+            COVER_FLANGE_T + 4.0,
+            App.Vector(x0 - w - COVER_FLANGE - 2.0, sb["y0"] - mgn, z0 - 2.0),
+        )
+    )
+    for g in glands:
+        if g["inward"] > 0:
+            origin = App.Vector(g["x_outer"] - 2.0, g["y"], g["z"])
+            axis = App.Vector(1, 0, 0)
+        else:
+            origin = App.Vector(g["x_outer"] + 2.0, g["y"], g["z"])
+            axis = App.Vector(-1, 0, 0)
+        sh = sh.cut(Part.makeCylinder(g["hole"] / 2.0, w + 4.0, origin, axis))
+    return sh
+
+
+def _cover_punch_xy(sh, pts, dia, z, h):
+    r = dia / 2.0
+    for hx, hy in pts:
+        sh = sh.cut(Part.makeCylinder(r, h, App.Vector(hx, hy, z)))
+    return sh
+
+
+def _export_mesh_step(shape, stem):
+    os.makedirs(OUT_DIR, exist_ok=True)
+    shape.exportStep(os.path.join(OUT_DIR, stem + ".step"))
+    try:
+        import MeshPart
+
+        mesh = MeshPart.meshFromShape(Shape=shape, LinearDeflection=0.15, AngularDeflection=0.4)
+        mesh.write(os.path.join(OUT_DIR, stem + ".stl"))
+    except Exception as exc:
+        print("STL export skipped", stem, exc)
+
+
 def add_cover(doc, tb1_origin, tb2_origin):
-    """Cover slips over plate-mounted SW1. Lid windows over CB3 / CB4."""
+    """Four ASA L-corners with CA half-laps, PC sheet in a top rabbet."""
     lay = pack_plate_layout(tb1_origin, tb2_origin)
     x0, x1 = lay["inner_x0"], lay["inner_x1"]
     y0, y1 = lay["inner_y0"], lay["inner_y1"]
     z0 = PLATE_T
     zh = COVER_INNER_H
     w = COVER_WALL
-    walls = [
-        Part.makeBox(x1 - x0 + 2.0 * w, w, zh, App.Vector(x0 - w, y0 - w, z0)),
-        Part.makeBox(x1 - x0 + 2.0 * w, w, zh, App.Vector(x0 - w, y1, z0)),
-        Part.makeBox(w, y1 - y0, zh, App.Vector(x0 - w, y0, z0)),
-        Part.makeBox(w, y1 - y0, zh, App.Vector(x1, y0, z0)),
-    ]
-    wall = _fuse_many(walls)
-    lid = Part.makeBox(x1 - x0 + 2.0 * w, y1 - y0 + 2.0 * w, COVER_LID_T, App.Vector(x0 - w, y0 - w, lay["z_lid"]))
+    half = w / 2.0
+    lap = COVER_LAP
+    gap = COVER_GAP
+    rb = COVER_RABBET
+    seat_h = COVER_SEAT
+    z_pc = z0 + zh - COVER_LID_T
+    z_seat = z_pc - seat_h
+    mx, my = _cover_split_xy(x0, x1, y0, y1, lay["sb"])
+    fl = COVER_FLANGE
+    ft = COVER_FLANGE_T
+    glands = gland_layout(tb1_origin, tb2_origin)["all"]
+
+    sw = _fuse_many(
+        [
+            Part.makeBox(mx - (x0 - w), w, zh, App.Vector(x0 - w, y0 - w, z0)),
+            Part.makeBox(lap - gap, half, zh, App.Vector(mx + gap, y0 - half, z0)),
+            Part.makeBox(w, my - y0, zh, App.Vector(x0 - w, y0, z0)),
+            Part.makeBox(half, lap - gap, zh, App.Vector(x0 - half, my + gap, z0)),
+            Part.makeBox((mx + lap) - x0, rb, seat_h, App.Vector(x0, y0, z_seat)),
+            Part.makeBox(rb, (my + lap) - y0, seat_h, App.Vector(x0, y0, z_seat)),
+            Part.makeBox((mx + lap) - (x0 - w - fl), fl, ft, App.Vector(x0 - w - fl, y0 - w - fl, z0)),
+            Part.makeBox(fl, (my + lap) - (y0 - w), ft, App.Vector(x0 - w - fl, y0 - w, z0)),
+        ]
+    )
+    se = _fuse_many(
+        [
+            Part.makeBox((x1 + w) - (mx + lap), w, zh, App.Vector(mx + lap, y0 - w, z0)),
+            Part.makeBox(lap - gap, half, zh, App.Vector(mx + gap, y0 - w, z0)),
+            Part.makeBox(w, my - y0, zh, App.Vector(x1, y0, z0)),
+            Part.makeBox(half, lap - gap, zh, App.Vector(x1, my + gap, z0)),
+            Part.makeBox(x1 - (mx + lap), rb, seat_h, App.Vector(mx + lap, y0, z_seat)),
+            Part.makeBox(rb, (my + lap) - y0, seat_h, App.Vector(x1 - rb, y0, z_seat)),
+            Part.makeBox((x1 + w + fl) - (mx + lap), fl, ft, App.Vector(mx + lap, y0 - w - fl, z0)),
+            Part.makeBox(fl, (my + lap) - (y0 - w), ft, App.Vector(x1 + w, y0 - w, z0)),
+        ]
+    )
+    ne = _fuse_many(
+        [
+            Part.makeBox((x1 + w) - (mx + lap), w, zh, App.Vector(mx + lap, y1, z0)),
+            Part.makeBox(lap - gap, half, zh, App.Vector(mx + gap, y1 + half, z0)),
+            Part.makeBox(w, y1 - (my + lap), zh, App.Vector(x1, my + lap, z0)),
+            Part.makeBox(half, lap - gap, zh, App.Vector(x1 + half, my + gap, z0)),
+            Part.makeBox(x1 - (mx + lap), rb, seat_h, App.Vector(mx + lap, y1 - rb, z_seat)),
+            Part.makeBox(rb, y1 - (my + lap), seat_h, App.Vector(x1 - rb, my + lap, z_seat)),
+            Part.makeBox((x1 + w + fl) - (mx + lap), fl, ft, App.Vector(mx + lap, y1 + w, z0)),
+            Part.makeBox(fl, (y1 + w) - (my + lap), ft, App.Vector(x1 + w, my + lap, z0)),
+        ]
+    )
+    nw = _fuse_many(
+        [
+            Part.makeBox(mx - (x0 - w), w, zh, App.Vector(x0 - w, y1, z0)),
+            Part.makeBox(lap - gap, half, zh, App.Vector(mx + gap, y1, z0)),
+            Part.makeBox(w, y1 - (my + lap), zh, App.Vector(x0 - w, my + lap, z0)),
+            Part.makeBox(half, lap - gap, zh, App.Vector(x0 - w, my + gap, z0)),
+            Part.makeBox((mx + lap) - x0, rb, seat_h, App.Vector(x0, y1 - rb, z_seat)),
+            Part.makeBox(rb, y1 - (my + lap), seat_h, App.Vector(x0, my + lap, z_seat)),
+            Part.makeBox((mx + lap) - (x0 - w - fl), fl, ft, App.Vector(x0 - w - fl, y1 + w, z0)),
+            Part.makeBox(fl, (y1 + w) - (my + lap), ft, App.Vector(x0 - w - fl, my + lap, z0)),
+        ]
+    )
+
+    lid_screws = {
+        "Cover_SW": ((x0 + rb / 2.0, 0.5 * (y0 + my)), (0.5 * (x0 + mx), y0 + rb / 2.0)),
+        "Cover_SE": ((x1 - rb / 2.0, 0.5 * (y0 + my)), (0.5 * (mx + lap + x1), y0 + rb / 2.0)),
+        "Cover_NE": ((x1 - rb / 2.0, 0.5 * (my + lap + y1)), (0.5 * (mx + lap + x1), y1 - rb / 2.0)),
+        "Cover_NW": ((x0 + rb / 2.0, 0.5 * (my + lap + y1)), (0.5 * (x0 + mx), y1 - rb / 2.0)),
+    }
+    corners = [("Cover_SW", sw), ("Cover_SE", se), ("Cover_NE", ne), ("Cover_NW", nw)]
+    out = []
+    for name, sh in corners:
+        sh = _cover_apply_cutouts(sh, lay, glands, x0, x1, w, z0)
+        sh = _cover_punch_xy(sh, lay["cover_screws"], HOLE_M6, z0 - 1.0, ft + 2.0)
+        sh = _cover_punch_xy(sh, lid_screws[name], COVER_M4_TAP, z_seat - 1.0, seat_h + 2.0)
+        out.append((name, sh))
+
+    pc_mgn = 0.4
+    z_lid = z_pc
+    lid = Part.makeBox(
+        (x1 - x0) - 2.0 * pc_mgn,
+        (y1 - y0) - 2.0 * pc_mgn,
+        COVER_LID_T,
+        App.Vector(x0 + pc_mgn, y0 + pc_mgn, z_lid),
+    )
     lid = lid.cut(
         Part.makeCylinder(
             COVER_SW1_HOLE_R,
             COVER_LID_T + 2.0,
-            App.Vector(lay["sw_x"], lay["sw_cy"], lay["z_lid"] - 1.0),
+            App.Vector(lay["sw_x"], lay["sw_cy"], z_lid - 1.0),
         )
     )
-    cb = lay["cb"]
-    mgn = COVER_CB_MARGIN
-    for cy in (cb["cy3"], cb["cy4"]):
-        lid = lid.cut(
-            Part.makeBox(
-                MCB_D + 2.0 * mgn,
-                MCB_W + 2.0 * mgn,
-                COVER_LID_T + 2.0,
-                App.Vector(cb["x_front"] - mgn, cy - MCB_W / 2.0 - mgn, lay["z_lid"] - 1.0),
-            )
-        )
+    all_screws = [xy for pts in lid_screws.values() for xy in pts]
+    lid = _cover_punch_xy(lid, all_screws, COVER_M4_CLR, z_lid - 1.0, COVER_LID_T + 2.0)
+
     grp = doc.addObject("App::DocumentObjectGroup", "PackCover")
     grp.Label = "PackCover"
-    objs = [
-        add_shape(doc, "Cover_Walls", wall, COLOR_COVER, transparency=50),
-        add_shape(doc, "Cover_Lid", lid, COLOR_COVER, transparency=30),
-    ]
+    colors = {
+        "Cover_SW": (0.72, 0.42, 0.32),
+        "Cover_SE": (0.36, 0.58, 0.40),
+        "Cover_NE": (0.32, 0.48, 0.72),
+        "Cover_NW": (0.58, 0.38, 0.62),
+    }
+    objs = []
+    for name, sh in out:
+        objs.append(add_shape(doc, name, sh, colors[name], transparency=20))
+        bb = sh.BoundBox
+        print(
+            name,
+            "print",
+            round(bb.XLength, 1),
+            "x",
+            round(bb.YLength, 1),
+            "x",
+            round(bb.ZLength, 1),
+            "mm",
+        )
+        _export_mesh_step(sh, name.lower())
+    objs.append(add_shape(doc, "Cover_Lid_PC", lid, COLOR_PC, transparency=65))
+    _export_mesh_step(lid, "cover_lid_pc")
+    print(
+        "Cover_Lid_PC",
+        round(lid.BoundBox.XLength, 1),
+        "x",
+        round(lid.BoundBox.YLength, 1),
+        "x",
+        COVER_LID_T,
+        "mm PC sheet; glue split mx,my",
+        round(mx, 1),
+        round(my, 1),
+    )
     for o in objs:
         grp.addObject(o)
     return grp
 
 
 def sb350_layout(tb1_origin, tb2_origin):
+    """Pack SB350 half on the plate, west of the 5/16 lugs. Mate face is the west wall."""
     ox1, oy1, oz1 = tb1_origin
     _ox2, oy2, _oz2 = tb2_origin
     y_plus = oy1 + STUD_Y2
     y_minus = oy2 + STUD_Y1
-    cy = (y_plus + y_minus) / 2.0
+    cy_cables = (y_plus + y_minus) / 2.0
+    sw_cy = oy1 + STUD_Y1 + HVBD_STUD_CC / 2.0
+    f4_north = sw_cy + A25X_HOLE_CC / 2.0 + SCM10_BASE_L / 2.0
+    cy = max(cy_cables, f4_north + 10.0 + SB350_W / 2.0)
     barrel_x = ox1 - LUG_516_BARREL_L
-    cable_x = barrel_x - 90.0
+    cable_x = barrel_x - SB350_CABLE
+    pack_x0 = cable_x - SB350_L
     inv_x = cable_x - SB350_MATED
-    return barrel_x, cable_x, inv_x, cy, y_plus, y_minus, oz1
+    z0 = PLATE_T + 3.0
+    holes = (
+        (pack_x0 + 18.0, cy - SB350_W / 2.0 + 10.0, HOLE_M6 / 2.0),
+        (pack_x0 + 18.0, cy + SB350_W / 2.0 - 10.0, HOLE_M6 / 2.0),
+        (pack_x0 + SB350_L - 18.0, cy - SB350_W / 2.0 + 10.0, HOLE_M6 / 2.0),
+        (pack_x0 + SB350_L - 18.0, cy + SB350_W / 2.0 - 10.0, HOLE_M6 / 2.0),
+    )
+    return {
+        "barrel_x": barrel_x,
+        "cable_x": cable_x,
+        "pack_x0": pack_x0,
+        "inv_x": inv_x,
+        "cy": cy,
+        "y_plus": y_plus,
+        "y_minus": y_minus,
+        "oz": oz1,
+        "z0": z0,
+        "y0": cy - SB350_W / 2.0,
+        "y1": cy + SB350_W / 2.0,
+        "holes": holes,
+    }
 
 
 def tb3_at_inverter(tb1_origin, tb2_origin):
     """TB3 origin (pre-180 yaw) so the 5/16 end faces the SB350 inverter half."""
-    _bx, _cx, inv_x, cy, _yp, _ym, oz = sb350_layout(tb1_origin, tb2_origin)
-    tx = inv_x - 122.0 - BAR_L
-    ty = cy - BAR_W / 2.0
-    return (tx, ty, oz)
+    sb = sb350_layout(tb1_origin, tb2_origin)
+    tx = sb["inv_x"] - 122.0 - BAR_L
+    ty = sb["cy"] - BAR_W / 2.0
+    return (tx, ty, sb["oz"])
 
 
 def add_sb350(doc, tb1_origin, tb2_origin, tb3_origin=None):
-    """Mated SB350 off the 5/16 end; HV-09 / HV-10 2/0 from the inner studs."""
+    """Pack SB350 half bolted to the plate; inverter half mates through the west wall."""
+    sb = sb350_layout(tb1_origin, tb2_origin)
     ox1, oy1, oz1 = tb1_origin
-    barrel_x, cable_x, inv_x, cy, y_plus, y_minus, oz1 = sb350_layout(tb1_origin, tb2_origin)
+    _ox2, oy2, _oz2 = tb2_origin
+    barrel_x, cable_x, inv_x = sb["barrel_x"], sb["cable_x"], sb["inv_x"]
+    cy, y_plus, y_minus = sb["cy"], sb["y_plus"], sb["y_minus"]
+    z0 = sb["z0"]
     lug_z = oz1 + SM40_H + BAR_T
     z_lug = lug_z + LUG_516_BARREL_R
-    pack, pack_ct, pack_ys, z_c = sb350_half(cable_x, cy, 1)
-    inv, inv_ct, _, _ = sb350_half(inv_x, cy, -1)
+    pack, pack_ct, pack_ys, z_c, pack_x0 = sb350_half(cable_x, cy, 1, z0)
+    inv, inv_ct, _, _, _ = sb350_half(inv_x, cy, -1, z0)
     housing = pack.fuse(inv)
 
-    hx = cable_x - SB350_L * 0.35
+    pads = []
+    bolts = []
+    for hx, hy, _r in sb["holes"]:
+        pad = Part.makeBox(16.0, 16.0, 3.0, App.Vector(hx - 8.0, hy - 8.0, PLATE_T))
+        pad = pad.cut(Part.makeCylinder(HOLE_M6 / 2.0, 5.0, App.Vector(hx, hy, PLATE_T - 1.0)))
+        pads.append(pad)
+        head = hex_prism(10.0, 4.0)
+        head.translate(App.Vector(hx, hy, PLATE_T - PLATE_T - 4.0))
+        shaft = Part.makeCylinder(3.0, PLATE_T + 3.0 + 6.0, App.Vector(hx, hy, 0.0))
+        nut = hex_prism(10.0, 5.0)
+        nut.translate(App.Vector(hx, hy, z0))
+        bolts.extend((head, shaft, nut))
+    bracket = _fuse_many(pads)
+
+    hx = inv_x + SB350_L * 0.35
     grip = Part.makeBox(
         22.0,
         SB350_W - 16.0,
         10.0,
-        App.Vector(hx - 11.0, cy - (SB350_W - 16.0) / 2.0, SB350_H + 32.0),
+        App.Vector(hx - 11.0, cy - (SB350_W - 16.0) / 2.0, z0 + SB350_H + 32.0),
     )
-    leg1 = Part.makeBox(10.0, 8.0, 38.0, App.Vector(hx - 5.0, cy - SB350_W / 2.0 + 4.0, SB350_H - 4.0))
-    leg2 = Part.makeBox(10.0, 8.0, 38.0, App.Vector(hx - 5.0, cy + SB350_W / 2.0 - 12.0, SB350_H - 4.0))
+    leg1 = Part.makeBox(10.0, 8.0, 38.0, App.Vector(hx - 5.0, cy - SB350_W / 2.0 + 4.0, z0 + SB350_H - 4.0))
+    leg2 = Part.makeBox(10.0, 8.0, 38.0, App.Vector(hx - 5.0, cy + SB350_W / 2.0 - 12.0, z0 + SB350_H - 4.0))
     handle = _fuse_many([grip, leg1, leg2])
 
     cables = []
@@ -969,37 +1340,37 @@ def add_sb350(doc, tb1_origin, tb2_origin, tb3_origin=None):
                 )
             )
         cables.append(sweep_tube(pts, DLO_2_0_OD / 2.0))
-    if tb3_origin is not None:
-        tx, ty, _ = tb3_origin
-        y_tb3_plus = ty + BAR_W - STUD_Y2
-        barrel_tb3 = tx + BAR_L + LUG_516_BARREL_L
-        p0 = App.Vector(inv_x - 2.0, pack_ys[0], z_c)
-        p3 = App.Vector(barrel_tb3, y_tb3_plus, z_lug)
-        pts = []
-        for t in (0.0, 0.22, 0.5, 0.78, 1.0):
-            s = t * t * (3.0 - 2.0 * t)
-            pts.append(
-                App.Vector(
-                    p0.x + (p3.x - p0.x) * t,
-                    p0.y + (p3.y - p0.y) * s,
-                    p0.z + (p3.z - p0.z) * s,
-                )
-            )
-        cables.append(sweep_tube(pts, DLO_2_0_OD / 2.0))
-        cables.append(
-            sweep_tube(
-                (
-                    App.Vector(inv_x - 2.0, pack_ys[1], z_c),
-                    App.Vector(inv_x - 80.0, pack_ys[1] + 50.0, z_c),
-                ),
-                DLO_2_0_OD / 2.0,
-            )
+    # HV-01 pack - rises over the SB350 like B+ and exits the west wall above the cutout.
+    y_hv01 = oy2 + STUD_Y2
+    z_hi = PLATE_T + SCM10_BOSS_H + A25X_BLADE_T + LUG_516_BARREL_R
+    cables.append(
+        sweep_tube(
+            (
+                App.Vector(ox1 + STUD_X1, y_hv01, z_lug),
+                App.Vector(cable_x + 20.0, y_hv01, z_hi),
+                App.Vector(pack_x0 - 25.0, y_hv01, z_hi),
+            ),
+            DLO_2_0_OD / 2.0,
         )
-    else:
-        for y_ent in pack_ys:
+    )
+    if tb3_origin is not None:
+        # TB3 yaw 180: both 5/16 barrels face +X at the inverter SB350.
+        # Local X1 edge is lx=0; barrel mouth is another LUG_516_BARREL_L outward.
+        for y_ent, stud_y in ((pack_ys[0], STUD_Y2), (pack_ys[1], STUD_Y1)):
+            bx, by = bar_point(tb3_origin, -LUG_516_BARREL_L, stud_y, 180.0)
             p0 = App.Vector(inv_x - 2.0, y_ent, z_c)
-            p1 = App.Vector(inv_x - 70.0, y_ent, z_c)
-            cables.append(sweep_tube((p0, p1), DLO_2_0_OD / 2.0))
+            p3 = App.Vector(bx, by, z_lug)
+            pts = []
+            for t in (0.0, 0.22, 0.5, 0.78, 1.0):
+                s = t * t * (3.0 - 2.0 * t)
+                pts.append(
+                    App.Vector(
+                        p0.x + (p3.x - p0.x) * t,
+                        p0.y + (p3.y - p0.y) * s,
+                        p0.z + (p3.z - p0.z) * s,
+                    )
+                )
+            cables.append(sweep_tube(pts, DLO_2_0_OD / 2.0))
 
     grp = doc.addObject("App::DocumentObjectGroup", "SB350_PackDisconnect")
     grp.Label = "SB350_PackDisconnect"
@@ -1007,11 +1378,13 @@ def add_sb350(doc, tb1_origin, tb2_origin, tb3_origin=None):
         add_shape(doc, "SB350_Housing", housing, COLOR_SB350),
         add_shape(doc, "SB350_Handle", handle, COLOR_SB350_HANDLE),
         add_shape(doc, "SB350_Contacts", pack_ct.fuse(inv_ct), COLOR_SS),
+        add_shape(doc, "SB350_Mounts", bracket, COLOR_ZINC),
+        add_shape(doc, "SB350_MountHW", _fuse_many(bolts), COLOR_SS),
         add_shape(doc, "SB350_DLO", Part.makeCompound(cables), COLOR_DLO),
     ]
     for o in objs:
         grp.addObject(o)
-    add_label(doc, "Label_SB350", ["SB350  pack / inverter"], (cable_x, cy - SB350_W / 2.0 - 18.0, SB350_H + 40.0))
+    add_label(doc, "Label_SB350", ["SB350  pack / inverter"], (cable_x, cy - SB350_W / 2.0 - 18.0, z0 + SB350_H + 40.0))
     return grp
 
 
@@ -1067,37 +1440,45 @@ def a25x_fuse():
     return body, blade
 
 
-def add_f4(doc, tb1_origin):
-    """F4 A25X500-4 on a 1SCM10 pair. Mounts sit on the 1/4 in pack plate."""
-    ox, oy, oz = tb1_origin
-    x_pack, x_sw1, y_fuse = f4_layout(tb1_origin)
+def add_f4(doc, tb1_origin, tb2_origin):
+    """F4 A25X500-4 on a 1SCM10 pair, long axis along Y, west of SW1."""
+    x_fuse, y_pack, y_sw = f4_layout(tb1_origin, tb2_origin)
     z0 = PLATE_T
     z_blade = z0 + SCM10_BOSS_H
 
     insulators = []
     metals = []
-    for x in (x_pack, x_sw1):
+    for y in (y_pack, y_sw):
         ins, metal = scm10_mount()
         for sh in (ins, metal):
-            sh.translate(App.Vector(x, y_fuse, z0))
+            sh.rotate(App.Vector(0, 0, 0), App.Vector(0, 0, 1), 90.0)
+            sh.translate(App.Vector(x_fuse, y, z0))
         insulators.append(ins)
         metals.append(metal)
 
     body, blade = a25x_fuse()
     for sh in (body, blade):
-        sh.translate(App.Vector(x_pack, y_fuse, z_blade))
+        sh.rotate(App.Vector(0, 0, 0), App.Vector(0, 0, 1), 90.0)
+        sh.translate(App.Vector(x_fuse, y_pack, z_blade))
 
     sw = sw1_pose(tb1_origin)
     z_f = z_blade + A25X_BLADE_T + LUG_516_BARREL_R
     z_sw1 = sw["z_term"] + LUG_516_BARREL_R
-    p0 = App.Vector(x_sw1, y_fuse, z_f)
-    p1 = App.Vector(sw["x_out"], sw["y_in"], z_f)
-    p2 = App.Vector(sw["x_out"], sw["y_in"], z_sw1)
-    hv07 = sweep_tube((p0, p1, p2), DLO_2_0_OD / 2.0)
+    x_clear = sw["x_out"] - HVBD_BODY_OD / 2.0 - 10.0
+    hv07 = sweep_tube(
+        (
+            App.Vector(x_fuse, y_sw, z_f),
+            App.Vector(x_clear, y_sw, z_f),
+            App.Vector(x_clear, sw["y_out"], z_sw1),
+            App.Vector(sw["x_out"], sw["y_out"], z_sw1),
+        ),
+        DLO_2_0_OD / 2.0,
+    )
+    west_x = sb350_layout(tb1_origin, tb2_origin)["pack_x0"] + 8.0
     hv06 = sweep_tube(
         (
-            App.Vector(x_pack, y_fuse, z_f),
-            App.Vector(x_pack - 80.0, y_fuse, z_f),
+            App.Vector(x_fuse, y_pack, z_f),
+            App.Vector(west_x, y_pack, z_f),
         ),
         DLO_2_0_OD / 2.0,
     )
@@ -1113,34 +1494,35 @@ def add_f4(doc, tb1_origin):
     ]
     for o in objs:
         grp.addObject(o)
-    add_label(doc, "Label_F4", ["F4  A25X500-4  1SCM10"], (x_sw1, y_fuse - 28.0, z0 + SCM10_H + 10.0))
+    add_label(doc, "Label_F4", ["F4  A25X500-4  1SCM10"], (x_fuse, y_pack - 28.0, z0 + SCM10_H + 10.0))
     return grp
 
 
-def mcb_2p(cy, x_front, z_base):
-    """CHTAIXI DZ47Z-63 2P. Front/LINE face at x_front toward the bars. + pole at -Y."""
-    body = Part.makeBox(MCB_D, MCB_W, MCB_H, App.Vector(x_front, cy - MCB_W / 2.0, z_base))
+def mcb_2p(x_mid, y_front, z_base):
+    """CHTAIXI DZ47Z-63 2P. LINE/front at y_front facing -Y. + pole toward -X (TB1)."""
+    x0 = x_mid - MCB_W / 2.0
+    body = Part.makeBox(MCB_W, MCB_D, MCB_H, App.Vector(x0, y_front, z_base))
     try:
         body = body.makeChamfer(1.2, [e for e in body.Edges if e.Length > 70])
     except Exception:
         pass
     toggle = Part.makeBox(
-        12.0,
         22.0,
+        12.0,
         18.0,
-        App.Vector(x_front + 8.0, cy - 11.0, z_base + MCB_H - 28.0),
+        App.Vector(x_mid - 11.0, y_front + 8.0, z_base + MCB_H - 28.0),
     )
-    yp = cy - MCB_MOD / 2.0
-    ym = cy + MCB_MOD / 2.0
-    plus = Part.makeCylinder(3.2, 2.0, App.Vector(x_front - 0.5, yp, z_base + MCB_H / 2.0), App.Vector(-1, 0, 0))
-    minus = Part.makeCylinder(3.2, 2.0, App.Vector(x_front - 0.5, ym, z_base + MCB_H / 2.0), App.Vector(-1, 0, 0))
-    return body, toggle, plus, minus, yp, ym
+    xp = x_mid - MCB_MOD / 2.0
+    xm = x_mid + MCB_MOD / 2.0
+    plus = Part.makeCylinder(3.2, 2.0, App.Vector(xp, y_front - 0.5, z_base + MCB_H / 2.0), App.Vector(0, -1, 0))
+    minus = Part.makeCylinder(3.2, 2.0, App.Vector(xm, y_front - 0.5, z_base + MCB_H / 2.0), App.Vector(0, -1, 0))
+    return body, toggle, plus, minus, xp, xm
 
 
 def add_breakers(doc, tb1_origin, tb2_origin):
-    """CB3 32 A charger and CB4 10 A DCIS. Pack on LINE, device on LOAD, + to TB1."""
+    """CB3 32 A charger and CB4 10 A DCIS, stacked along Y. Pack on LINE, + toward TB1."""
     cb = cb_layout(tb1_origin, tb2_origin)
-    xf = cb["x_front"]
+    xm = cb["x_mid"]
     z0 = cb["z_base"]
     z_line = cb["z_line"]
     z_load = cb["z_load"]
@@ -1151,45 +1533,40 @@ def add_breakers(doc, tb1_origin, tb2_origin):
     pluses = []
     minuses = []
     terms = {}
-    for key, cy in (("cb3", cb["cy3"]), ("cb4", cb["cy4"])):
-        body, toggle, plus, minus, yp, ym = mcb_2p(cy, xf, z0)
+    for key, yf in (("cb3", cb["y_front3"]), ("cb4", cb["y_front4"])):
+        body, toggle, plus, minus, xp, xn = mcb_2p(xm, yf, z0)
         bodies.append(body)
         toggles.append(toggle)
         pluses.append(plus)
         minuses.append(minus)
-        terms[key] = {"plus": yp, "minus": ym}
+        terms[key] = {"plus": (xp, yf), "minus": (xn, yf), "y_load": yf + MCB_D}
 
-    din_y0 = cb["cy3"] - MCB_W / 2.0 - 8.0
-    din_y1 = cb["cy4"] + MCB_W / 2.0 + 8.0
-    din_x = xf + MCB_D - 18.0 - DIN_W / 2.0
+    din_y0 = cb["y_front3"]
+    din_y1 = cb["y_front4"] + MCB_D
+    din_x = xm
     din = Part.makeBox(DIN_W, din_y1 - din_y0, DIN_H, App.Vector(din_x - DIN_W / 2.0, din_y0, z0))
     lip = Part.makeBox(DIN_W + 6.0, din_y1 - din_y0, 1.2, App.Vector(din_x - DIN_W / 2.0 - 3.0, din_y0, z0 + DIN_H))
     din = din.fuse(lip)
 
     bx = cb["barrel_x"]
     lz = cb["lug_z"]
-    x_dev = xf + MCB_D + 35.0
-    x_face = xf - 8.0
-    south = cb["cy3"] - MCB_W / 2.0 - 14.0
-    north = cb["cy4"] + MCB_W / 2.0 + 14.0
+    x_dev = cb["x_right"] + 28.0
 
-    def fan(y_lug, y_term, z_term):
+    def fan(y_lug, x_term, y_term, z_term):
         return sweep_tube(
             (
                 App.Vector(bx, y_lug, lz),
-                App.Vector(bx + (xf - bx) * 0.4, y_lug + (y_term - y_lug) * 0.2, lz + (z_term - lz) * 0.5),
-                App.Vector(xf, y_term, z_term),
+                App.Vector(x_term, y_lug + (y_term - y_lug) * 0.35, lz + (z_term - lz) * 0.5),
+                App.Vector(x_term, y_term, z_term),
             ),
             r,
         )
 
-    def load_around(y_term, outer_y):
+    def load_out(x_term, y_load):
         return sweep_tube(
             (
-                App.Vector(xf, y_term, z_load),
-                App.Vector(x_face, y_term, z_load),
-                App.Vector(x_face, outer_y, z_load),
-                App.Vector(x_dev, outer_y, z_load),
+                App.Vector(x_term, y_load, z_load),
+                App.Vector(x_dev, y_load, z_load),
             ),
             r,
         )
@@ -1198,14 +1575,14 @@ def add_breakers(doc, tb1_origin, tb2_origin):
     blks = []
     t3 = terms["cb3"]
     t4 = terms["cb4"]
-    reds.append(fan(cb["tb1_y1"], t3["plus"], z_line))
-    blks.append(fan(cb["tb2_y1"], t3["minus"], z_line))
-    reds.append(load_around(t3["plus"], south))
-    blks.append(load_around(t3["minus"], south - 12.0))
-    reds.append(fan(cb["tb1_y2"], t4["plus"], z_line))
-    blks.append(fan(cb["tb2_y2"], t4["minus"], z_line))
-    reds.append(load_around(t4["plus"], north + 12.0))
-    blks.append(load_around(t4["minus"], north))
+    reds.append(fan(cb["tb1_y1"], t3["plus"][0], t3["plus"][1], z_line))
+    blks.append(fan(cb["tb2_y1"], t3["minus"][0], t3["minus"][1], z_line))
+    reds.append(load_out(t3["plus"][0], t3["y_load"]))
+    blks.append(load_out(t3["minus"][0], t3["y_load"]))
+    reds.append(fan(cb["tb1_y2"], t4["plus"][0], t4["plus"][1], z_line))
+    blks.append(fan(cb["tb2_y2"], t4["minus"][0], t4["minus"][1], z_line))
+    reds.append(load_out(t4["plus"][0], t4["y_load"]))
+    blks.append(load_out(t4["minus"][0], t4["y_load"]))
 
     grp = doc.addObject("App::DocumentObjectGroup", "CB3_CB4")
     grp.Label = "CB3_CB4"
@@ -1220,8 +1597,8 @@ def add_breakers(doc, tb1_origin, tb2_origin):
     ]
     for o in objs:
         grp.addObject(o)
-    add_label(doc, "Label_CB3", ["CB3  32 A  charger"], (xf, cb["cy3"] - 28.0, z0 + MCB_H + 8.0))
-    add_label(doc, "Label_CB4", ["CB4  10 A  DCIS"], (xf, cb["cy4"] + 18.0, z0 + MCB_H + 8.0))
+    add_label(doc, "Label_CB3", ["CB3  32 A  charger"], (xm + 28.0, cb["cy3"], z0 + MCB_H + 8.0))
+    add_label(doc, "Label_CB4", ["CB4  10 A  DCIS"], (xm + 28.0, cb["cy4"], z0 + MCB_H + 8.0))
     return grp
 
 
@@ -1333,7 +1710,7 @@ def fill_spreadsheet(doc):
         ("SM40_waist", SM40_WAIST, "socket / waist"),
         ("SM40_insert", "M10 x 11", "both ends"),
         ("creepage_air_gap_tb23", PITCH_TB23 - BAR_W, "TB2-TB3 aligned copper"),
-        ("pitch_tb12", PITCH_TB12, "TB1-TB2 SM40 centers, spin-safe"),
+        ("pitch_tb12", PITCH_TB12, "TB1-TB2 SM40 centers, 50 mm air"),
         ("pitch_tb23", PITCH_TB23, "TB2-TB3 SM40 centers"),
         ("air_tb12_aligned", PITCH_TB12 - BAR_W, "TB1-TB2 air when aligned"),
         ("SB350_L", SB350_L, "single housing length"),
@@ -1346,7 +1723,12 @@ def fill_spreadsheet(doc):
         ("SCM10_H", SCM10_H, "1SCM10 overall height"),
         ("F4_plate_T", PLATE_T, "1/4 in plate under SM40s and 1SCM10s"),
         ("cover_inner_H", COVER_INNER_H, "pack cover inside height"),
-        ("cover_wall", COVER_WALL, "cover wall thickness"),
+        ("cover_wall", COVER_WALL, "printed ASA L-corner wall"),
+        ("cover_lid_T", COVER_LID_T, "PC sheet in rabbet"),
+        ("cover_rabbet", COVER_RABBET, "PC seat width"),
+        ("cover_lap", COVER_LAP, "CA glue half-lap"),
+        ("cover_flange", COVER_FLANGE, "printed foot outboard of wall"),
+        ("cover_flange_T", COVER_FLANGE_T, "printed foot thickness"),
         ("MCB_W", MCB_W, "CHTAIXI DZ47Z-63 2P width"),
         ("MCB_D", MCB_D, "CHTAIXI 2.95 in depth"),
         ("MCB_H", MCB_H, "CHTAIXI 3.15 in height"),
@@ -1413,7 +1795,7 @@ def main():
     build_one(doc, "TB2_PackMinus", tb2)
     build_one(doc, "TB3_PackPlus_Inverter", tb3, yaw=180.0)
     add_sb350(doc, tb1, tb2, tb3)
-    add_f4(doc, tb1)
+    add_f4(doc, tb1, tb2)
     add_breakers(doc, tb1, tb2)
     add_sw1(doc, tb1)
     add_cover(doc, tb1, tb2)
@@ -1453,7 +1835,16 @@ def main():
     print("Bar", BAR_L, "x", BAR_W, "x", BAR_T, "mm; SM40 at", MOUNT_X, MOUNT_Y)
     print("5/16 c-c (rows)", round(abs(STUD_Y2 - STUD_Y1), 1), "  5/16 to 1/4 (ends)", abs(STUD_X2 - STUD_X1))
     print("5/16 to M10", round((dx516**2 + dy**2) ** 0.5, 1), "  1/4 to M10", round((dx10**2 + dy**2) ** 0.5, 1))
-    print("SW1 on plate south of TB1; 2/0 jumper to TB1 Y1")
+    print("SW1 west of TB1, F4 along Y; 2/0 jumper to TB1 Y1")
+    lay = pack_plate_layout(tb1, tb2)
+    print(
+        "Pack plate",
+        round(lay["px1"] - lay["px0"], 1),
+        "x",
+        round(lay["py1"] - lay["py0"], 1),
+        "mm; SB350 mate at x",
+        round(lay["sb"]["pack_x0"], 1),
+    )
     print("TB1-TB2 SM40 c-c", PITCH_TB12, "  aligned air", PITCH_TB12 - BAR_W)
     print("TB3 at inverter end of SB350", [round(v, 1) for v in tb3], "yaw 180")
     return doc
