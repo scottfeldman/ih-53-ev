@@ -33,9 +33,9 @@
 #   plate    -- wrap/glass rim on the bed. Hood walls and hinge print up.
 #               Support the aluminum-pocket roof.
 #   bracket  -- truck foot on the bed, knuckles up.
-#   knob     -- flat face on the bed. Two of them. Drop an M6 hex nut
-#               in the pocket.
-#   lid      -- inner lip on the bed, M3 seats facing up.
+#   knob     -- stand-off boss on the bed (hinge side). Two of them.
+#               Drop an M6 hex nut in the pocket on the opposite face.
+#   lid      -- flat cover on the bed, M3 seats facing up.
 
 import math
 import os
@@ -162,8 +162,12 @@ HINGE_BRKT_N = 4
 HINGE_FOOT_T = 6.0
 HINGE_FOOT_Y = 38.0
 HINGE_PIN_OVERHANG = 16.0
-HINGE_KNOB_D = 32.0
+# Knob OD cleared the hinge knuckles at 32; 28 turns freely.
+# Stand-off boss is on the hinge side (opposite the nut pocket).
+HINGE_KNOB_D = 28.0
 HINGE_KNOB_T = 10.0
+HINGE_KNOB_BOSS_D = 14.0
+HINGE_KNOB_BOSS_H = 2.5
 HINGE_KNOB_HEX = 10.6
 HINGE_KNOB_HEX_T = 5.6
 HINGE_KNOB_GAP = 0.8
@@ -366,10 +370,13 @@ def hex_prism(af, h, x, y, z):
 
 
 def build_knob():
-    # Flat on the bed. Through-hole along +Z. Hex nut pocket on the
-    # inner face (z = T) so an M6 nut is captured when you tighten.
+    # Stand-off boss on the bed (z <= 0) faces the hinge. Hex nut pocket
+    # on the outer face (z = T). Through-hole along +Z.
     t = HINGE_KNOB_T
+    bh = HINGE_KNOB_BOSS_H
     knob = cyl(HINGE_KNOB_D, t, 0.0, 0.0, 0.0)
+    boss = cyl(HINGE_KNOB_BOSS_D, bh, 0.0, 0.0, -bh)
+    knob = fuse_all([knob, boss])
     n = 8
     rd = HINGE_KNOB_D / 2.0 + 1.2
     for i in range(n):
@@ -377,7 +384,9 @@ def build_knob():
         knob = knob.cut(
             cyl(9.0, t + 2.0, rd * math.cos(a), rd * math.sin(a), -1.0)
         )
-    knob = knob.cut(cyl(HINGE_PIN_CLR, t + 2.0, 0.0, 0.0, -1.0))
+    knob = knob.cut(
+        cyl(HINGE_PIN_CLR, t + bh + 2.0, 0.0, 0.0, -bh - 1.0)
+    )
     knob = knob.cut(
         hex_prism(HINGE_KNOB_HEX, HINGE_KNOB_HEX_T + 0.2, 0.0, 0.0, t - HINGE_KNOB_HEX_T)
     )
@@ -387,13 +396,15 @@ def build_knob():
 def placed_knob(toward_plus_y):
     x_ax, z_ax = hinge_axis_xz()
     half = hinge_span() / 2.0
+    # Offset from hinge end to the knob body face; boss tip sits at GAP.
+    offset = HINGE_KNOB_GAP + HINGE_KNOB_BOSS_H
     k = build_knob()
     if toward_plus_y:
         k.rotate(App.Vector(0, 0, 0), App.Vector(1, 0, 0), -90.0)
-        k.translate(App.Vector(x_ax, half + HINGE_KNOB_GAP, z_ax))
+        k.translate(App.Vector(x_ax, half + offset, z_ax))
     else:
         k.rotate(App.Vector(0, 0, 0), App.Vector(1, 0, 0), 90.0)
-        k.translate(App.Vector(x_ax, -(half + HINGE_KNOB_GAP), z_ax))
+        k.translate(App.Vector(x_ax, -(half + offset), z_ax))
     return k
 
 
@@ -910,21 +921,15 @@ def build_bracket():
 
 
 def build_lid(lid_pts, wys, gland_x, gland_z):
+    # Flat cover only — no inner ridge (clears the M3 screw bosses) and
+    # no wire grooves (hood slot is enough to pass the four wires).
     x0, y0, x1, y1 = cavity_xy()
     om = hood_outer_m()
     lid = cavity_rr(om, gland_z, gland_z + LID_T, HOOD_R + 1.6)
-    lip = cavity_rr(-0.3, gland_z - 1.2, gland_z + 0.05, HOOD_R - 0.2).cut(
-        cavity_rr(-2.0, gland_z - 1.5, gland_z + 0.3, HOOD_R - 1.8)
-    )
-    lid = fuse_all([lid, lip])
 
     cuts = []
     for x, y in lid_pts:
         cuts.append(cyl(M3_CLR, LID_T + 4.0, x, y, gland_z - 2.0))
-
-    # matching 4-wire grooves on -X (USB-C) wall
-    for y in wys:
-        cuts.append(cyl(WIRE_HOLE, om + 8.0, x0 + 1.0, y, gland_z, (-1, 0, 0)))
 
     # lid vents, inset from screws and the rim, through the full lid
     inset = 12.0
@@ -983,7 +988,9 @@ def fill_spreadsheet(doc):
         ("m25_thru", M25_THRU, "3.0 through plate into M2.5 display tabs"),
         ("hinge_pin", HINGE_PIN_D, "M6 threaded rod"),
         ("hinge_od", HINGE_OD, "raised cabin-face barrels"),
-        ("hinge_knob", HINGE_KNOB_D, "printed round knob, M6 nut pocket"),
+        ("hinge_knob", HINGE_KNOB_D, "printed round knob OD"),
+        ("hinge_knob_boss", HINGE_KNOB_BOSS_D, "stand-off collar OD, hinge side"),
+        ("hinge_knob_boss_H", HINGE_KNOB_BOSS_H, "stand-off height"),
         ("m3_tap", M3_TAP, "M3 self-tap into corner posts"),
         ("m3_tap_h", M3_TAP_H, "blind hole depth"),
         ("m3_boss_od", M3_BOSS_OD, "corner post OD"),
