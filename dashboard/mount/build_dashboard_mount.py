@@ -186,24 +186,24 @@ HINGE_KNOB_KNURL_DEPTH = 2.4
 HINGE_KNOB_FILLET = 1.0
 M6_SLOT_W = 6.4
 M6_SLOT_L = 14.0
-# Hidden arc stow (truck-side). Guide lives entirely behind the IH tan
-# dash panel so nothing ugly sticks into the cabin when stowed. Only a
-# small lip clamp shows under the bay (radio blank .. glovebox). Plate /
-# hood / lid / knobs / plate-side hinge barrels are FIXED. The bracket
-# (truck-side knuckles) may change — it grows an arm + tongue that rides
-# the hidden rail. Yaw omitted for now.
-STOW_SWEEP_DEG = 75.0
-STOW_RAIL_DR = 50.0
+# Truck-side bracket arm (dogleg under lip) + tip tongue on the radial guide.
+HINGE_ARM_LEN = 50.8
+HINGE_ARM_T = 12.0
+HINGE_ARM_DROP_EXTRA = 6.0
+# Hidden radial stow guide behind the IH tan dash. Arc centre is chosen so
+# the hinge ducks under the lip; the rail sits at the arm-tip radius.
+# Bracket tongue rides the U-channel. Lip clamp is the cabin attachment.
+# Articulate: Stow (arc) + Tilt (hinge fold). No yaw yet.
 STOW_RAIL_W = 36.0
 STOW_CHAN_H = 14.0
 STOW_WALL = 3.5
-STOW_TONGUE_ARC = 40.0
-STOW_CATCH_BUMP = 2.4
-STOW_CLR = 0.4
-# Arc foot <-> lip clamp joint (2x M3).
+STOW_TONGUE_LEN = 28.0
+STOW_TONGUE_W = 28.0
+STOW_CATCH_BUMP = 2.2
+STOW_CLR = 0.5
 STOW_JOINT_M3 = 3.2
 STOW_JOINT_DY = 22.0
-# IH dash lip (sheet). Guide stays at x <= dash face - clearance.
+# IH dash lip (sheet). Guide stays behind the face.
 DASH_LIP_T = 1.6
 DASH_LIP_RETURN = 14.0
 DASH_PANEL_T = 1.6
@@ -1149,26 +1149,35 @@ def _circumcenter_xz(p1, p2, p3):
     return cx, cz, r
 
 
+def arm_run_z():
+    # Top/bottom of the under-lip arm segment.
+    _x_face, z_lip = dash_lip_xz()
+    clr = 3.0
+    z_top = z_lip - clr - HINGE_ARM_DROP_EXTRA
+    z_bot = z_top - HINGE_ARM_T
+    return z_bot, z_top
+
+
+def arm_tip_xz():
+    # Centre of the under-lip arm tip (tongue rides here).
+    hx, _hz = hinge_axis_xz()
+    z0, z1 = arm_run_z()
+    return hx + HINGE_SIDE * HINGE_ARM_LEN, 0.5 * (z0 + z1)
+
+
 def stow_path_points():
-    # Hinge path must duck UNDER the lip before crossing the dash face,
-    # then rise behind the panel. Three waypoints define the arc.
+    # Hinge path ducks UNDER the lip before crossing the dash face,
+    # then rises behind the panel. Three waypoints define the arc.
     hx, hz = hinge_axis_xz()
     x_face, z_lip = dash_lip_xz()
-    # Knuckle envelope (barrel radius + margin) must sit fully below
-    # z_lip before the axis reaches the face plane.
     clear = hinge_r() + 6.0
     h0 = (hx, hz)
-    # Under-lip gate: below panel, just cabin-side of face so the duck
-    # completes before the panel thickness is entered.
     under = (x_face + 2.0, z_lip - clear)
-    # Stowed: deep behind + up into the cavity.
     stowed = (x_face - 160.0, z_lip + 55.0)
     return h0, under, stowed
 
 
 def stow_sweep_signed():
-    # FreeCAD +Y rotation that carries the hinge from deployed -> stowed.
-    # Matches atan2 decrease along the duck-under arc (positive angle).
     return stow_theta_deployed() - stow_theta_stowed()
 
 
@@ -1189,8 +1198,10 @@ def stow_hinge_r():
 
 
 def stow_rail_r():
-    # Tongue rides a shorter radius (closer to centre = deeper behind dash).
-    return stow_hinge_r() - STOW_RAIL_DR
+    # Tongue / arm tip radius about the same centre as the hinge path.
+    cx, cz = stow_arc_center()
+    tx, tz = arm_tip_xz()
+    return math.hypot(tx - cx, tz - cz)
 
 
 def stow_theta_of_xz(x, z):
@@ -1208,12 +1219,14 @@ def stow_theta_stowed():
     return stow_theta_of_xz(stowed[0], stowed[1])
 
 
-def stow_tongue_point_deployed():
-    # On the rail circle at the deployed hinge angle (rigid bracket).
-    cx, cz = stow_arc_center()
-    a = math.radians(stow_theta_deployed())
-    rr = stow_rail_r()
-    return (cx + rr * math.cos(a), cz + rr * math.sin(a))
+def stow_theta_tip_deployed():
+    tx, tz = arm_tip_xz()
+    return stow_theta_of_xz(tx, tz)
+
+
+def stow_theta_tip_stowed():
+    # Same angular sweep as the hinge path, applied at the tip radius.
+    return stow_theta_tip_deployed() - stow_sweep_signed()
 
 
 def _xz_annulus_sector(cx, cz, r_in, r_out, a0_deg, a1_deg, y0, y1, n=64):
@@ -1234,7 +1247,7 @@ def _xz_annulus_sector(cx, cz, r_in, r_out, a0_deg, a1_deg, y0, y1, n=64):
 
 
 def build_dash_lip_clamp():
-    # Low clamp under the lip only — sole cabin attachment of the guide.
+    # Low clamp under the lip — sole cabin attachment of the guide.
     x_face, z_lip = dash_lip_xz()
     span = DASH_FACE_BOLT_DY + 20.0
     under = box(
@@ -1263,7 +1276,6 @@ def build_dash_lip_clamp():
         z_lip + DASH_LIP_T + 0.2,
     )
     clamp = clamp.cut(pocket)
-    # Keep clamp out of the vertical face slab (above the lip).
     clamp = clamp.cut(
         box(
             x_face - DASH_PANEL_T - 0.5,
@@ -1308,17 +1320,15 @@ def dummy_ih_dash():
 
 
 def _stow_rail_angles():
-    a_dep = stow_theta_deployed()
-    a_stow = stow_theta_stowed()
-    if a_stow > a_dep:
-        a_stow, a_dep = a_dep, a_stow
-    rr = stow_rail_r()
-    pad = math.degrees(STOW_TONGUE_ARC / 2.0 / max(rr, 1.0)) + 5.0
-    return a_stow - pad, a_dep + pad, a_stow, a_dep
+    a_tip = stow_theta_tip_deployed()
+    a_stow = stow_theta_tip_stowed()
+    pad = math.degrees(STOW_TONGUE_LEN / 2.0 / max(stow_rail_r(), 1.0)) + 8.0
+    a0 = min(a_tip, a_stow) - pad
+    a1 = max(a_tip, a_stow) + pad
+    return a0, a1, a_tip, a_stow
 
 
 def _stow_joint_xz():
-    # Mating pad behind the lip return, under the arc's near-dash end.
     x_face, z_lip = dash_lip_xz()
     x_return = x_face - DASH_PANEL_T - DASH_LIP_RETURN
     x_b = dash_behind_x()
@@ -1331,110 +1341,104 @@ def _stow_joint_xz():
 
 
 def build_stow_rail_arc():
-    # Open U-channel on an XZ arc. Tongue slides along the channel;
-    # open side faces the hinge so the bracket arm can reach in.
+    # Open U-channel on the tip-radius arc, entirely behind the dash face.
     cx, cz = stow_arc_center()
     rr = stow_rail_r()
     half_h = STOW_CHAN_H / 2.0
     t = STOW_WALL
     y0 = -STOW_RAIL_W / 2.0
     y1 = STOW_RAIL_W / 2.0
-    a0, a1, a_stow, a_dep = _stow_rail_angles()
+    a0, a1, a_tip, a_stow = _stow_rail_angles()
 
     shell = _xz_annulus_sector(
         cx, cz, rr - half_h - t, rr + half_h + t, a0, a1, y0, y1
     )
-    # Void opens the outer radius (+t+1 past shell) so the channel is a U.
     void = _xz_annulus_sector(
         cx, cz, rr - half_h, rr + half_h + t + 1.0, a0, a1, y0 + t, y1 - t
     )
     rail = shell.cut(void)
 
-    # Deployed-end stop (tongue bottoms here at Stow=0).
+    # Deployed stop just past the tongue.
+    half_a = math.degrees(STOW_TONGUE_LEN / 2.0 / max(rr, 1.0))
     stop = _xz_annulus_sector(
         cx, cz, rr - half_h, rr + half_h,
-        a_dep + math.degrees(STOW_TONGUE_ARC / 2.0 / max(rr, 1.0)) + 0.4,
-        a_dep + math.degrees(STOW_TONGUE_ARC / 2.0 / max(rr, 1.0)) + 5.0,
+        a_tip + half_a + 0.5,
+        a_tip + half_a + 5.0,
         y0 + t, y1 - t,
     )
-    rail = fuse_all([rail, stop])
-
-    # Stowed catch leaf + bump (tongue notch snaps over the bump).
-    leaf = _xz_annulus_sector(
-        cx, cz, rr - half_h, rr - half_h + 2.0,
-        a_stow - 1.5,
-        a_stow + math.degrees(STOW_TONGUE_ARC / 2.0 / max(rr, 1.0)) + 1.5,
-        -7.0, 7.0,
-    )
+    # Stowed catch bump on the channel floor.
     bump = _xz_annulus_sector(
-        cx, cz, rr - half_h + 1.8, rr - half_h + 1.8 + STOW_CATCH_BUMP,
-        a_stow - 0.8, a_stow + 3.5, -5.5, 5.5,
+        cx, cz,
+        rr - half_h + 1.5,
+        rr - half_h + 1.5 + STOW_CATCH_BUMP,
+        a_stow - 1.0, a_stow + 3.0,
+        -STOW_TONGUE_W / 2.0 + 1.0, STOW_TONGUE_W / 2.0 - 1.0,
     )
-    rail = fuse_all([rail, leaf, bump])
+    rail = fuse_all([rail, stop, bump])
 
-    # Keep arc body behind the panel sheet.
+    # Keep body behind the panel sheet.
     x_b = dash_behind_x()
     _, z_lip = dash_lip_xz()
     rail = rail.cut(
         box(x_b, -300.0, -200.0, x_b + 500.0, 300.0, z_lip + DASH_PANEL_H + 100.0)
     )
 
-    # Upper half of joint foot (mates to clamp flange below).
+    # Joint foot for the lip clamp — entirely under the lip return sheet.
     jx0, jx1, jz0, jz1, z_mid = _stow_joint_xz()
+    x_face, z_lip = dash_lip_xz()
+    x_return = x_face - DASH_PANEL_T - DASH_LIP_RETURN
     foot = box(
-        jx0, -STOW_JOINT_DY / 2.0 - 4.0, z_mid,
-        jx1, STOW_JOINT_DY / 2.0 + 4.0, jz1,
+        jx0, -STOW_JOINT_DY / 2.0 - 4.0, jz0,
+        jx1, STOW_JOINT_DY / 2.0 + 4.0, z_lip - 0.5,
     )
-    # Fat bridge into the channel volume so foot and arc are one solid.
+    # Rise behind the lip return up into the channel side wall.
     bridge = box(
-        jx0,
-        -12.0,
-        min(z_mid, 33.0),
-        max(jx1, x_b - 0.5),
-        12.0,
-        z_lip + 25.0,
+        jx0, y0, z_lip - 0.5,
+        x_return - 1.0, y0 + t + 3.0, z_lip + 40.0,
     )
     rail = fuse_all([rail, foot, bridge])
     cuts = []
     for dy in (-STOW_JOINT_DY / 2.0, STOW_JOINT_DY / 2.0):
         cuts.append(
-            cyl(STOW_JOINT_M3, jz1 - z_mid + 4.0, (jx0 + jx1) / 2.0, dy, z_mid - 2.0)
+            cyl(STOW_JOINT_M3, (z_lip - 0.5) - jz0 + 4.0, (jx0 + jx1) / 2.0, dy, jz0 - 2.0)
         )
     rail = cut_all(rail, cuts)
-    # Channel is hollow — bridge the foot into a side wall so it's one solid.
-    wall_join = box(
-        jx0,
-        y0,
-        z_mid,
-        x_b - 1.0,
-        y0 + t + 2.0,
-        z_lip + 40.0,
+    # Strip the lip return sheet (extends behind x_b).
+    rail = rail.cut(
+        box(
+            x_face - DASH_PANEL_T - DASH_LIP_RETURN - 0.2,
+            -300.0,
+            z_lip - 0.2,
+            x_face + 0.2,
+            300.0,
+            z_lip + DASH_LIP_T + 0.2,
+        )
     )
-    rail = fuse_all([rail, wall_join])
+    # Drop tiny disconnected scraps (e.g. orphaned catch fragments).
     if len(rail.Solids) > 1:
-        rail = fuse_all(list(rail.Solids))
+        solids = sorted(rail.Solids, key=lambda s: s.Volume, reverse=True)
+        keep = solids[0]
+        for s in solids[1:]:
+            if s.Volume > 500.0:
+                keep = keep.fuse(s)
+        rail = keep.removeSplitter()
     return rail
 
 
 def build_stow_rail_clamp():
-    # Cabin-side lip clamp + lower joint flange (2x M3 up into arc foot).
+    # Cabin-visible lip clamp + flange (2x M3 into the arc foot).
     clamp = build_dash_lip_clamp()
     x_face, z_lip = dash_lip_xz()
-    x_b = dash_behind_x()
     x_return = x_face - DASH_PANEL_T - DASH_LIP_RETURN
     jx0, jx1, jz0, jz1, z_mid = _stow_joint_xz()
-
+    z_seat = z_lip - 0.5
     strap = box(
-        jx0,
-        -12.0,
-        z_lip - 6.0,
-        x_return - 1.0,
-        12.0,
-        min(z_lip - 0.5, z_mid),
+        jx0, -12.0, z_lip - 6.0,
+        x_return - 1.0, 12.0, min(z_lip - 0.5, z_seat),
     )
     flange = box(
         jx0, -STOW_JOINT_DY / 2.0 - 4.0, jz0,
-        jx1, STOW_JOINT_DY / 2.0 + 4.0, z_mid,
+        jx1, STOW_JOINT_DY / 2.0 + 4.0, z_seat,
     )
     out = fuse_all([clamp, strap, flange])
     out = out.cut(
@@ -1447,10 +1451,20 @@ def build_stow_rail_clamp():
             z_lip + DASH_LIP_T + 0.2,
         )
     )
+    out = out.cut(
+        box(
+            x_face - DASH_PANEL_T - 0.5,
+            -300.0,
+            z_lip + DASH_LIP_T,
+            x_face + 0.5,
+            300.0,
+            z_lip + DASH_PANEL_H,
+        )
+    )
     cuts = []
     for dy in (-STOW_JOINT_DY / 2.0, STOW_JOINT_DY / 2.0):
         cuts.append(
-            cyl(STOW_JOINT_M3, z_mid - jz0 + 4.0, (jx0 + jx1) / 2.0, dy, jz0 - 2.0)
+            cyl(STOW_JOINT_M3, z_seat - jz0 + 4.0, (jx0 + jx1) / 2.0, dy, jz0 - 2.0)
         )
     out = cut_all(out, cuts)
     if len(out.Solids) > 1:
@@ -1458,23 +1472,8 @@ def build_stow_rail_clamp():
     return out
 
 
-def build_stow_rail():
-    # Back-compat helper.
-    return fuse_all([build_stow_rail_arc(), build_stow_rail_clamp()])
-
-
-# Truck-side hinge half. Arm reaches from the pin toward the dash.
-# 2 inches; guide/rail come later.
-HINGE_ARM_LEN = 50.8
-HINGE_ARM_T = 12.0
-HINGE_ARM_DROP_EXTRA = 6.0
-
-
 def build_bracket():
-    # Interleaved knuckles plus an arm that drops under the dash lip,
-    # then continues toward the dash. Same width as the knuckle span.
-    # Only the barrels sit in the plate knuckle gaps; the arm spine
-    # begins dash-side of the barrel OD so it cannot fill those slots.
+    # Interleaved knuckles + dogleg arm + tongue on the tip radius.
     x_ax, z_ax = hinge_axis_xz()
     x_face, z_lip = dash_lip_xz()
     spans = hinge_knuckle_ys("bracket")
@@ -1484,50 +1483,65 @@ def build_bracket():
     for y0, y1 in spans:
         barrel = cyl(HINGE_OD, y1 - y0, x_ax, y0, z_ax, (0, 1, 0))
         lug = box(
-            x_ax,
-            y0,
-            z_ax - half,
-            x_spine + HINGE_SIDE * 1.0,
-            y1,
-            z_ax + half,
+            x_ax, y0, z_ax - half,
+            x_spine + HINGE_SIDE * 1.0, y1, z_ax + half,
         )
         fingers.append(fuse_all([barrel, lug]))
     y0 = spans[0][0]
     y1 = spans[-1][1]
     clr = 3.0
-    # Elbow stays cabin-side of the dash face. Drop is a short riser in
-    # the cabin; the low run then ducks under the lip.
     x_elbow = x_face - HINGE_SIDE * clr
     riser_t = min(HINGE_ARM_T, abs(x_elbow - x_spine) - 1.0)
     x_riser_cabin = x_elbow - HINGE_SIDE * riser_t
-    z_run_top = z_lip - clr - HINGE_ARM_DROP_EXTRA
-    z_run_bot = z_run_top - HINGE_ARM_T
+    z_run_bot, z_run_top = arm_run_z()
     x_tip = x_ax + HINGE_SIDE * HINGE_ARM_LEN
-    stub = box(
-        x_spine,
-        y0,
-        z_ax - half,
-        x_elbow,
-        y1,
-        z_ax + half,
+    stub = box(x_spine, y0, z_ax - half, x_elbow, y1, z_ax + half)
+    riser = box(x_riser_cabin, y0, z_run_bot, x_elbow, y1, z_ax + half)
+    under = box(x_tip, y0, z_run_bot, x_elbow, y1, z_run_top)
+
+    # Tongue: short arc segment at tip radius, centred on deployed tip angle.
+    cx, cz = stow_arc_center()
+    rr = stow_rail_r()
+    half_h = STOW_CHAN_H / 2.0
+    a_tip = stow_theta_tip_deployed()
+    half_a = math.degrees(STOW_TONGUE_LEN / 2.0 / max(rr, 1.0))
+    tw = STOW_TONGUE_W
+    tongue = _xz_annulus_sector(
+        cx, cz,
+        rr - half_h + STOW_CLR,
+        rr + half_h - STOW_CLR,
+        a_tip - half_a,
+        a_tip + half_a,
+        -tw / 2.0,
+        tw / 2.0,
     )
-    riser = box(
-        x_riser_cabin,
-        y0,
-        z_run_bot,
-        x_elbow,
-        y1,
-        z_ax + half,
+    # Notch for the stowed catch bump.
+    notch = _xz_annulus_sector(
+        cx, cz,
+        rr - half_h + STOW_CLR - 0.3,
+        rr - half_h + STOW_CLR + STOW_CATCH_BUMP + 0.3,
+        a_tip - half_a,
+        a_tip - half_a + 2.5,
+        -tw / 2.0 + 1.0,
+        tw / 2.0 - 1.0,
     )
-    under = box(
-        x_tip,
-        y0,
+    tongue = tongue.cut(notch)
+    # Keep tongue behind the panel.
+    x_b = dash_behind_x()
+    tongue = tongue.cut(
+        box(x_b, -300.0, -200.0, x_b + 500.0, 300.0, z_lip + DASH_PANEL_H + 100.0)
+    )
+    # Link arm tip into the tongue.
+    link = box(
+        x_tip - HINGE_SIDE * 8.0,
+        -tw / 2.0,
         z_run_bot,
-        x_elbow,
-        y1,
+        x_tip + HINGE_SIDE * 2.0,
+        tw / 2.0,
         z_run_top,
     )
-    br = fuse_all(fingers + [stub, riser, under])
+
+    br = fuse_all(fingers + [stub, riser, under, link, tongue])
     br = br.cut(hinge_pin_cutter())
     if len(br.Solids) > 1:
         br = fuse_all(list(br.Solids))
@@ -1620,17 +1634,21 @@ def fill_spreadsheet(doc):
     return ss
 
 
-def export_steps(plate, lid, bracket, knob, assembly):
+def export_steps(plate, lid, bracket, knob, stow_arc, stow_clamp, assembly):
     os.makedirs(OUT_DIR, exist_ok=True)
     plate.exportStep(os.path.join(OUT_DIR, "mount_plate.step"))
     lid.exportStep(os.path.join(OUT_DIR, "mount_lid.step"))
     bracket.exportStep(os.path.join(OUT_DIR, "mount_bracket.step"))
     knob.exportStep(os.path.join(OUT_DIR, "mount_knob.step"))
+    stow_arc.exportStep(os.path.join(OUT_DIR, "mount_stow_rail_arc.step"))
+    stow_clamp.exportStep(os.path.join(OUT_DIR, "mount_stow_rail_clamp.step"))
     assembly.exportStep(os.path.join(OUT_DIR, "mount_assembly.step"))
     plate.exportStl(os.path.join(OUT_DIR, "mount_plate.stl"))
     lid.exportStl(os.path.join(OUT_DIR, "mount_lid.stl"))
     bracket.exportStl(os.path.join(OUT_DIR, "mount_bracket.stl"))
     knob.exportStl(os.path.join(OUT_DIR, "mount_knob.stl"))
+    stow_arc.exportStl(os.path.join(OUT_DIR, "mount_stow_rail_arc.stl"))
+    stow_clamp.exportStl(os.path.join(OUT_DIR, "mount_stow_rail_clamp.stl"))
 
 
 def main():
@@ -1662,6 +1680,8 @@ def main():
     knob_a = placed_knob(True)
     knob_b = placed_knob(False)
 
+    stow_arc = build_stow_rail_arc()
+    stow_clamp = build_stow_rail_clamp()
     dash_panel, dash_cavity = dummy_ih_dash()
 
     # --- assembly: fixed rail behind dash / swinging bracket / tilting display ---
@@ -1675,8 +1695,12 @@ def main():
     display_grp = doc.addObject("App::Part", "Asm_Display")
     display_grp.Label = "Display_Tilt"
 
+    o_arc = add_shape(doc, "Stow_Rail_Arc", stow_arc, COLOR_STOW)
+    o_clamp = add_shape(doc, "Stow_Rail_Clamp", stow_clamp, COLOR_STOW_MOVE)
     o_dash = add_shape(doc, "IH_Dash_Panel_Ref", dash_panel, COLOR_DASH_REF, 55)
     o_cav = add_shape(doc, "IH_Dash_Cavity_Ref", dash_cavity, (0.35, 0.32, 0.28), 80)
+    fixed.addObject(o_arc)
+    fixed.addObject(o_clamp)
     fixed.addObject(o_dash)
     fixed.addObject(o_cav)
 
@@ -1745,7 +1769,8 @@ def main():
         doc,
         "Label_Stow",
         [
-            "Bracket drops under dash lip, then back; guide not designed yet",
+            "Radial guide: tongue rides arc behind dash  Stow=swing under",
+            "lip clamp 2x M3 to arc foot",
         ],
         (x_face - 30.0, hinge_span() / 2.0 + 20.0, z_lip + 40.0),
     )
@@ -1759,6 +1784,8 @@ def main():
             knob_a,
             knob_b,
             rod,
+            stow_arc,
+            stow_clamp,
             glass,
             metal,
             bosses,
@@ -1775,7 +1802,7 @@ def main():
         ]
         + wires
     )
-    export_steps(plate, lid, bracket, knob, assembly)
+    export_steps(plate, lid, bracket, knob, stow_arc, stow_clamp, assembly)
     os.makedirs(OUT_DIR, exist_ok=True)
     path = os.path.join(OUT_DIR, "mount.FCStd")
     doc.saveAs(path)
